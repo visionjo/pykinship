@@ -24,7 +24,6 @@ if do_scores or 'score' not in datatable:
     features = {k.replace('../', ''): v for k, v in features.items()}
     datatable['score'] = datatable.apply(lambda row: np.dot(features[row['p1']], features[row['p2']]), axis=1)
 
-# thresholds = []
 ts_matches = []
 sim = []
 thresholds = np.arange(datatable.score.values.min(), datatable.score.values.max(), 100)
@@ -32,14 +31,12 @@ tprs = []
 aucs = []
 mean_fpr = np.linspace(0, 1, 100)
 
-# for fold in range(CONFIGS.settings.n_folds):
 folds = datatable.fold.unique()
 for fold in folds:
     ids_train = datatable.fold.astype(np.int) != fold
     ids_test = datatable.fold.astype(np.int) == fold
 
-    # print("Fold:", fold, "/", CONFIGS.settings.n_folds)
-    print("Fold:", fold, "/", len(folds))
+    print(f"Fold: {fold}/{len(folds)}")
 
     dir_fold = f"{dir_out}fold{fold}/"
     mkdir(dir_fold)
@@ -87,63 +84,26 @@ for fold in folds:
     t1 = t1[ids]
     # t2 = t2[ids]
 
-    neg_ids = np.where(labels == 0)[0][-100:]
-    pos_ids = np.where(labels == 1)[0][:100]
 
-    p1_pos = p1[pos_ids]
-    p1_neg = p1[neg_ids]
-    p2_pos = p2[pos_ids]
-    p2_neg = p2[neg_ids]
-
-    hard_pos_pairs = np.array(list(zip(p1_pos, p2_pos)))
-    hard_neg_pairs = np.array(list(zip(p1_neg, p2_neg)))
 
 
     def reindex(df):
         df.index = range(len(df))
 
-    if do_html:
-        cols = [Col('text', 'FID1', t1[pos_ids]),
-                Col('img', 'P1', [CONFIGS.path.dfid + f + '.jpg' for f in list(hard_pos_pairs[:, 0])]),
-                Col('img', 'P2', [CONFIGS.path.dfid + f + '.jpg' for f in list(hard_pos_pairs[:, 1])]),
-                Col('text', 'Scores', ["{0:0.5}".format(sc * 100) for sc in scores[pos_ids]])
-                ]
-        # cols2 = []
-        imagetable(cols,
-                   imscale=0.75,  # scale all images to 50%
-                   sticky_header=True,  # keep the header on the top
-                   out_file=dir_fold + 'hard_positives.html',
-                   style='img {border: 1px solid black;-webkit-box-shadow: 2px 2px 1px #ccc; box-shadow: 2px 2px 1px #ccc;}',
-                   )
-        cols = [Col('text', 'FID1', ["{}\n{}".format(tt1, tt2) for (tt1, tt2) in zip(t1[neg_ids], t2[neg_ids])]),
-                Col('img', 'P1', [CONFIGS.path.dfid + f + '.jpg' for f in list(hard_neg_pairs[:, 0])]),
-                Col('img', 'P2', [CONFIGS.path.dfid + f + '.jpg' for f in list(hard_neg_pairs[:, 1])]),
-                # Col('text', 'FID2', t2[neg_ids]),
-                Col('text', 'Scores', ["{0:0.5}".format(sc * 100) for sc in scores[neg_ids]])]
-
-        imagetable(cols,
-                   imscale=0.75,  # scale all images to 50%
-                   sticky_header=True,  # keep the header on the top
-                   out_file=dir_fold + 'hard_negatives.html',
-                   style='img {border: 1px solid black;-webkit-box-shadow: 2px 2px 1px #ccc; box-shadow: 2px 2px 1px #ccc;}',
-                   )
 
     # else:
     #     fpr, tpr, _ = roc_curve(labels, scores, thresholds)
     roc_auc = auc(fpr, tpr)
-    print("Acc:", roc_auc)
+    print(f"Acc:{roc_auc}")
     print('Saving Results')
     tprs.append(np.interp(mean_fpr, fpr, tpr))
     mkdir(dir_fold)
-    np.savetxt(dir_fold + "fpr.csv", fpr)
-    np.savetxt(dir_fold + "tpr.csv", tpr)
-    np.savetxt(dir_fold + "roc_auc.csv", [roc_auc])
+    np.savetxt(f"{dir_fold}fpr.csv", fpr)
+    np.savetxt(f"{dir_fold}tpr.csv", tpr)
+    np.savetxt(f"{dir_fold}roc_auc.csv", [roc_auc])
     aucs.append(roc_auc)
     # fpr, tpr, _ = roc_curve(np.array(ts_matches).flatten(), np.array(sim).flatten())
     # roc_auc = auc(fpr, tpr)
-    # np.savetxt(dir_results + pair_type + "/" + "fpr.csv", fpr)
-    # np.savetxt(dir_results + pair_type + "/" + "tpr.csv", tpr)
-    # np.savetxt(dir_results + pair_type + "/" + "roc_auc.csv", [roc_auc])
 
 mean_tpr = np.mean(tprs, axis=0)
 mean_tpr[-1] = 1.0
