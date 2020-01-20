@@ -1,4 +1,3 @@
-from scipy import interpolate as interp
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -8,16 +7,18 @@ from sklearn.metrics import roc_curve, auc
 from src.utils import mkdir
 
 do_scores = False
-dir_data = '../data/v0.1.2/'
-f_datalist = f'{dir_data}lists/verification_pairs_list_5_fold.pkl'
-f_features = f'{dir_data}features/features.pkl'
+do_html=False
 
-dir_out = '../results/verification/baseline/'
+dir_data = '../data/raw/v0.1.2/'
+dir_interim = '../data/dir_interim/'
+f_datalist = f'{dir_data}lists/verification_pairs_list_5_fold.pkl'
+f_features = f'{dir_interim}features-sphereface-off-the-shelf.pkl'
+
+dir_out = '../results/verification/off-the-shelf-sphereface/'
 
 datatable = pd.read_pickle(f_datalist)
 
 mkdir(dir_out)
-do_html=False
 if do_scores or 'score' not in datatable:
     features = pd.read_pickle(f_features)
 
@@ -68,9 +69,12 @@ for fold in folds:
     mkdir(dir_fold)
     np.savetxt(f"{dir_fold}fpr.csv", fpr)
     np.savetxt(f"{dir_fold}tpr.csv", tpr)
-    np.savetxt(f"{dir_fold}roc_auc.csv", [roc_auc])
+    with open(f"{dir_fold}roc_auc.csv", 'w') as f:
+        f.write(f"{roc_auc}")
     aucs.append(roc_auc)
 
+
+np.savetxt(dir_out + 'auc_scores.csv', aucs, delimiter=',')
 mean_tpr = np.mean(tprs, axis=0)
 mean_tpr[-1] = 1.0
 mean_auc = auc(mean_fpr, mean_tpr)
