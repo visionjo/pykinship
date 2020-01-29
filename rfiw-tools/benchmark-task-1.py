@@ -26,9 +26,11 @@ import time
 
 import matplotlib.pyplot as plt
 import numpy as np
+import swifter
 import pandas as pd
 import seaborn as sns
 from sklearn.metrics import roc_auc_score, roc_curve
+print(swifter.__version__)
 
 # set styles for figures
 sns.set(style="white", rc={"axes.facecolor": (0, 0, 0, 0)})
@@ -126,9 +128,9 @@ sns.violinplot(x='ptype', y='score', data=df_pairlist, hue='tags', ax=ax,
                       'GFGS', 'GMGD', 'GMGS'])
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
-ax.set_xlabel('Relationship Type', fontsize=18)
+ax.set_xlabel('Relationship Type')
 
-ax.set_ylabel('Similarity Score', fontsize=18)
+ax.set_ylabel('Similarity Score')
 # Calculate number of obs per group & median to position labels
 medians = df_pairlist.groupby(['ptype'])['score'].min().values
 nobs = df_pairlist['ptype'].value_counts().values
@@ -142,7 +144,7 @@ for tick, label in zip(pos, ax.get_xticklabels()):
     ax.text(value, -0.45, nobs[tick], horizontalalignment='center',
             size='small', color='k', weight='semibold')
 
-plt.legend(loc="best", fontsize=18)
+plt.legend(loc="best")
 
 plt.show()
 
@@ -157,9 +159,9 @@ sns.violinplot(x='ptype', y='score',
 
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
-ax.set_xlabel('Relationship Type', fontsize=18)
+ax.set_xlabel('Relationship Type')
 
-ax.set_ylabel('Similarity Score', fontsize=18)
+ax.set_ylabel('Similarity Score')
 # Calculate number of obs per group & median to position labels
 medians = df_pairs.groupby(['ptype'])['score'].min().values
 nobs = df_pairs['ptype'].value_counts().values
@@ -173,6 +175,6 @@ for tick, label in zip(pos, ax.get_xticklabels()):
     ax.text(value, -0.4, nobs[tick], horizontalalignment='center',
             size='small', color='k', weight='semibold')
 
-plt.legend(loc="best", fontsize=18)
+plt.legend(loc="best")
 
 plt.show()
