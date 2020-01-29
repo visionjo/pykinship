@@ -35,7 +35,7 @@ print(swifter.__version__)
 # set styles for figures
 sns.set(style="white", rc={"axes.facecolor": (0, 0, 0, 0)})
 sns.set_style('whitegrid', {'font.family': 'serif',
-                            'font.serif' : 'Times New Roman', 'fontsize': 14})
+                            'font.serif' : 'Times New Roman', 'fontsize': 18})
 
 # here set the baths to pairs list, along with directory containing features
 dir_root = '../data/rfiw2020/'
