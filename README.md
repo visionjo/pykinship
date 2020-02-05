@@ -1,7 +1,18 @@
 pykin
 ==============================
 
-Automatic kinship recognition
+Python tools for automatic kinship recognition in images and videos.
+
+Download data and learn more about it here https://web.northeastern.edu/smilelab/fiw/.
+
+Version: 0.1.0
+
+Created:    16 January 2020
+
+Author: Joseph Robinson
+
+Email: robinson.jo@husky.neu.edu
+
 
 Project Organization
 ------------
