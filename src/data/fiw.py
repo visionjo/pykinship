@@ -603,6 +603,51 @@ def write_meta_lists():
     df_fids_list.to_csv(Path(CONFIGS.lists).joinpath('fid_list.csv'), index=False)
 
     return df_master, df_image_list, df_fids_list
+=======
+    df_master['paths'] = df_master.apply(
+        lambda x: glob.glob(CONFIGS.path.fid + x['ref'] + '/*.jpg'), axis=1)
+    df_master['nfaces'] = df_master.apply(lambda x: len(x['paths']), axis=1)
+
+    if Path(CONFIGS.path.lists).joinpath('name_list.csv').is_file():
+        shutil.move(Path(CONFIGS.path.lists).joinpath('name_list.csv'),
+                    Path(CONFIGS.path.lists).joinpath('name_list_old.csv'))
+    df_master.to_csv(Path(CONFIGS.path.lists).joinpath('name_list.csv'),
+                     index=False,
+                     columns=['id', 'ref', 'mid', 'family', 'nfaces'])
+
+    lst_col = 'paths'
+
+    df_image_list = pd.DataFrame(
+        {col: np.repeat(df_master[col].values, df_master[lst_col].str.len()) for
+         col in df_master.columns.drop(lst_col)}).assign(
+        **{lst_col: np.concatenate(df_master[lst_col].values)})[
+        df_master.columns]
+    df_image_list['paths'] = df_image_list['paths'].str.replace(
+        CONFIGS.path.fid, '')
+
+    if Path(CONFIGS.path.lists).joinpath('image_list.csv').is_file():
+        shutil.move(Path(CONFIGS.path.lists).joinpath('image_list.csv'),
+                    Path(CONFIGS.path.lists).joinpath('image_list_old.csv'))
+    df_image_list.to_csv(Path(CONFIGS.path.lists).joinpath('image_list.csv'),
+                         index=False, columns=['id', 'ref', 'paths'])
+
+    df_fids_list = \
+    df_image_list.groupby(by=['family', 'mid']).count().sum(level=0)[['nfaces']]
+    df_fids_list.sort_index(inplace=True)
+
+    df_grouped = df_master.groupby('family').count()['mid']
+    df_grouped.sort_index(inplace=True)
+    df_fids_list['nmid'] = df_grouped
+    df_fids_list.reset_index(inplace=True)
+    df_fids_list = df_fids_list[['family', 'nmid', 'nfaces']]
+    df_fids_list.columns = ['fid', 'nmid', 'nfaces']
+
+    if Path(CONFIGS.path.lists).joinpath('fid_list.csv').is_file():
+        shutil.move(Path(CONFIGS.path.lists).joinpath('fid_list.csv'),
+                    Path(CONFIGS.path.lists).joinpath('fid_list_old.csv'))
+    df_fids_list.to_csv(Path(CONFIGS.path.lists).joinpath('fid_list.csv'),
+                        index=False)
+>>>>>>> Stashed changes
 
 
 if __name__ == "__main__":
@@ -615,19 +660,3 @@ if __name__ == "__main__":
     dir_fid = f"{dir_data}FIDs/"
     f_fid_list = f"{dir_data}lists/fid_list.csv"
     write_meta_lists()
-    # ml = DatabaseHandle(dir_fid, f_fid_list)
-    # if do_lists:
-    #     df_master, df_image_list, df_fid_list =
-    # if do_splits:
-    #     ml.split_fids_in_kfolds()
-    # if do_merge:
-    #     df_mid, df_images = ml.merge_pair_files()
-    # elif do_add_negatives:
-    #     df = ml.add_negative_pairs_to_folds()
-
-    mid_lut = {
-        f: pd.read_csv(f + "mid.csv")
-        for f in glob.glob(dir_fid + "F????/")
-        if Path(f"{f}mid.csv").is_file()
-    }
-    siblings = parse_siblings(mid_lut)
