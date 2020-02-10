@@ -147,9 +147,17 @@ Project Organization
     │
     └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
 
-## Todos
+## To Do
 ### General
 - [ ] Benchmark demos
+- [ ] RFIW stats
+  - [ ] Data stats
+  - [ ] Numbers added to project for reference (e.g., in rfiw-tools)
+  - [ ] Update data card accordingly
+- [ ] Benchmark results
+  - [ ] Verification results
+  - [ ] Tri-Subject results
+  - [ ] Search and retrieval results
 - [ ] Generate sample submissions
 - [ ] Data Augmentation
 
@@ -165,11 +173,15 @@ By downloading the image data you agree to the following terms:
 1. You will use the data only for non-commercial research and educational purposes.
 1. You will NOT distribute the above images.
 1. Northeastern University makes no representations or warranties regarding the data, including but not limited to warranties of non-infringement or fitness for a particular purpose.
-1.You accept full responsibility for your use of the data and shall defend and indemnify Northeastern University, including its employees, officers and agents, against any and all claims arising from your use of the data, including but not limited to your use of any copies of copyrighted images that you may create from the data.
+1. You accept full responsibility for your use of the data and shall defend and indemnify Northeastern University, including its employees, officers and agents, against any and all claims arising from your use of the data, including but not limited to your use of any copies of copyrighted images that you may create from the data.
+
+See Download links (and Terms and Conditions) [here](https://web.northeastern.edu/smilelab/fiw/download.html).
 
 
 ## Authors
 * **Joseph Robinson** - [Github](https://github.com/visionjo) - [web](http://www.jrobsvision.com)
+* **Zaid Khan** - [Github](https://github.com/codezakh)
+
 
 ## Bugs and Issues
 Please bring up any questions, comments, bugs, PRs, etc.
