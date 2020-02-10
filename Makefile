@@ -38,6 +38,10 @@ clean:
 lint:
 	flake8 src
 
+## Datacard
+datacard:
+	pdflatex --interaction=nonstopmode --output-directory='DatasheetForFIW/' DatasheetForFIW/main.tex;
+
 ## Upload Data to S3
 sync_data_to_s3:
 ifeq (default,$(PROFILE))
