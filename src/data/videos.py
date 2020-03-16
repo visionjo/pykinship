@@ -86,6 +86,14 @@ def crop_detection(face, locations):
 
 def get_video_metadata(f_video):
     cap = cv2.VideoCapture(f_video)
+    meta = {'fps': cap.get(cv2.CAP_PROP_FPS), 'frame_count': int(cap.get(cv2.CAP_PROP_FRAME_COUNT))}
+    meta['duration'] = meta['frame_count'] / meta['fps']
+    cap.release()
+    return meta
+
+
+def print_video_metadata(f_video):
+    cap = cv2.VideoCapture(f_video)
     fps = cap.get(cv2.CAP_PROP_FPS)
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     duration = frame_count / fps
