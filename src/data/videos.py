@@ -201,15 +201,17 @@ def main():
     dir_out = "/home/jrobby/kinship/"
     dir_fids = '/home/jrobby/master-version/fiwdb/FIDs/'
     df = read_family_member_list(f_urls)
-    fetch_videos = False
-    if fetch_videos:
+    get_videos = False
+    process_videos = True
+    if get_videos:
         fetch_videos(df, dir_out)
 
     # f_videos = Path(dir_videos).glob('*.mp4')
     # d_mid = Path(f_video).parent
-    nsubjects = len(df)
-    for i in range(nsubjects):
-        process_sample(df.iloc[i], dir_out, dir_fids)
+    if process_videos:
+        nsubjects = len(df)
+        for i in range(nsubjects):
+            process_sample(df.iloc[i], dir_out, dir_fids)
     # df.apply(lambda x: , axis=1)
     # process_se(df)
 
