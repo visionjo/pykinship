@@ -108,19 +108,24 @@ def print_video_metadata(f_video):
 def process_subject(encodings, f_video, dir_out):
     get_video_metadata(f_video)
     video_capture = cv2.VideoCapture(f_video)
-    # Check if camera opened successfully 
+    # Check if camera opened successfully
     if not video_capture.isOpened():
         print("Error opening video  file")
         return
 
     frame_id = 0
-    # Read until video is completed 
+    # Read until video is completed
     while video_capture.isOpened():
         print(Path(f"fr{frame_id}_face{0}.png"))
 
         print(dir_out)
-        # Capture frame-by-frame 
+        # Capture frame-by-frame
         ret, frame = video_capture.read()
+
+        if Path(f"{dir_out}faces/fr{frame_id}_face{0}.png").is_file():
+            print('skipping')
+            frame_id += 1
+            continue
         if ret:
             # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
             rgb_frame = frame[:, :, ::-1]
