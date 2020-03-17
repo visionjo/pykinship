@@ -2,6 +2,9 @@ import glob
 import shutil
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+
 from src.data.videos import get_video_metadata
 
 
@@ -49,6 +52,39 @@ def get_face_ids_from_image_list(li_impaths):
     return ids
 
 
+def calculate_iou_for_neighboring_frames(din, fout):
+    """
+    :param din directory containing bb information (json)
+    :param fout pickle file path to save array of iou values (K x F), where is K is number of frames and F is the max
+                number of faces in a frame at a given instance.
+    """
+    li_track_ids = []
+    for n in ids:
+        track_ids = -1 * np.ones((nframes,))
+        box_prev = 0
+        for k in range(nframes):
+            fin = '{0}meta/fr{1:06d}_face{2:02d}.json'.format(din, k, n)
+
+            if Path(fin).is_file():
+                df_meta = pd.read_json(fin)
+                l, t, r, b = tuple(df_meta.iloc[1][2])
+                box_cur = l, t, r, b
+                if box_prev:
+                    iou = bb_intersection_over_union(box_cur, box_prev)
+
+                    track_ids[k] = iou
+
+                # if iou < .75:
+                #     cur_track += 1
+                # track_ids[k][1] = cur_track
+
+                box_prev = box_cur
+            # else:
+            #     box_prev = -1
+        li_track_ids.append(track_ids)
+    pd.to_pickle(li_track_ids, fout)
+
+
 dir_data = '/Volumes/MySpace/kinship/'
 dir_video = f'{dir_data}ben_affleck.ben/'
 f_video = '/Volumes/MySpace/kinship/ben_affleck.ben/ben_affleck.ben.mp4'
@@ -65,46 +101,17 @@ ids = get_face_ids_from_image_list(f_metas)
 i = "face" + ids[0]
 cfaces = [f for f in f_metas if f.count(i)]
 
-import pandas as pd
-
 nframes = meta['frame_count']
-
-import numpy as np
 
 cur_track = 0
 
 ids = [int(i) for i in ids]
 # for k, cface in enumerate(cfaces):
-li_track_ids = []
-
-for i in ids:
-    track_ids = -1 * np.ones((nframes,))
-    box_prev = 0
-    for k in range(nframes):
-        fin = '{0}meta/fr{1:06d}_face{2:02d}.json'.format(dir_video, k, i)
-
-        if Path(fin).is_file():
-            df_meta = pd.read_json(fin)
-            df_meta.columns = df_meta.iloc[0]
-            df_meta = df_meta.drop(0)
-            df_meta.reset_index(inplace=True)
-            l, t, r, b = tuple(df_meta.iloc[0].bb)
-            box_cur = l, t, r, b
-            if box_prev:
-                iou = bb_intersection_over_union(box_cur, box_prev)
-
-                track_ids[k] = iou
-
-                # if iou < .75:
-                #     cur_track += 1
-                # track_ids[k][1] = cur_track
-
-            box_prev = box_cur
-        else:
-            track_ids[k] = 0
-    li_track_ids.append(track_ids)
-
-df_meta.iloc[0] = df_meta.iloc[1]
+dins = [d + '/' for d in glob.glob(f'{dir_data}/*/meta') if Path(d).is_dir()]
+for dir_video in dins:
+    calculate_iou_for_neighboring_frames(dir_video, dir_video + 'iou.pkl')
+if False:
+    df_meta.iloc[0] = df_meta.iloc[1]
 
 do_renaming = False
 
