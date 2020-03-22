@@ -1,13 +1,39 @@
 import glob
+
+import argparse
+import cv2
+import numpy as np
+import pandas as pd
 import shutil
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
+from src.data.videos import print_video_metadata, get_video_metadata
 
-from src.data.videos import get_video_metadata
+# ========== ========== ========== ==========
+# # PARSE ARGS
+# ========== ========== ========== ==========
+
+parser = argparse.ArgumentParser(description="FaceTracker")
+parser.add_argument('--data_dir', type=str, default='data/work', help='Output direcotry')
+parser.add_argument('--videofile', type=str, default='', help='Input video file')
+parser.add_argument('--reference', type=str, default='', help='Name of the video')
+parser.add_argument('--crop_scale', type=float, default=0.5, help='Scale bounding box')
+parser.add_argument('--min_track', type=int, default=100, help='Minimum facetrack duration')
+parser.add_argument('--frame_rate', type=int, default=25, help='Frame rate')
+parser.add_argument('--num_failed_det', type=int, default=25, help='Number of missed detections allowed')
+parser.add_argument('--min_face_size', type=float, default=0.03, help='Minimum size of faces')
+opt = parser.parse_args()
+
+setattr(opt, 'avi_dir', str(Path(opt.data_dir).joinpath('pyavi')))
+setattr(opt, 'tmp_dir', str(Path(opt.data_dir).joinpath('pytmp')))
+setattr(opt, 'work_dir', str(Path(opt.data_dir).joinpath('pywork')))
+setattr(opt, 'crop_dir', str(Path(opt.data_dir).joinpath('pycrop')))
+setattr(opt, 'frames_dir', str(Path(opt.data_dir).joinpath('pyframes')))
 
 
+# ========== ========== ========== ==========
+# # IOU FUNCTION
+# ========== ========== ========== ==========
 def bb_intersection_over_union(box1, box2):
     # determine the (x, y)-coordinates of the intersection rectangle
     xA = max(box1[0], box2[0])
@@ -105,15 +131,87 @@ nframes = meta['frame_count']
 
 cur_track = 0
 
-ids = [int(i) for i in ids]
-# for k, cface in enumerate(cfaces):
-dins = [d + '/' for d in glob.glob(f'{dir_data}/*/meta') if Path(d).is_dir()]
-for dir_video in dins:
-    calculate_iou_for_neighboring_frames(dir_video, dir_video + 'iou.pkl')
-if False:
-    df_meta.iloc[0] = df_meta.iloc[1]
+    ids = [int(i) for i in ids]
+    # for k, cface in enumerate(cfaces):
 
-do_renaming = False
+    if do_predictions:
+        # dins = [d + '/' for d in glob.glob(f'{dir_data}/*/predictions') if Path(d).is_dir()]
+        # for dir_video in dins:
+        #     pass
+
+        # f_prediction = list(Path(dir_video).joinpath('predictions').glob('*.csv'))[0]
+        # sample = pd.read_csv(f_prediction)
+        # nscores = len(sample)
+        li_score_arrs = []
+        for i in ids:
+            score_arr = np.zeros((nframes, 2))
+            f_predictions = Path(dir_video).joinpath('predictions').glob('*{:02d}.csv'.format(i))
+            for f_prediction in f_predictions:
+                sample = pd.read_csv(f_prediction).T.values
+                k = int(str(f_prediction).split("/fr")[-1].split('_')[0])
+                score_arr[k][0] = (sample.sum() / sample.size)
+                score_arr[k][1] = (sample.size - sample.sum()) / (sample.size + sample.sum())
+            li_score_arrs.append(score_arr)
+        pd.to_pickle(li_score_arrs, dir_video + 'predictions.pkl')
+
+        ids = [np.where(arr[:, 0])[0] for arr in li_score_arrs]
+        li = []
+        for idz in ids:
+            tmp = np.zeros_like(idz)
+            for i in range(len(idz[:-1])):
+                tmp[i] = idz[i + 1] - idz[i] - 1
+            li.append(tmp == 0)
+
+        indices = []
+        for idz, l in zip(ids, li):
+            indices.append(idz[l])
+        dout = dir_video + 'parsed_frames/'
+        Path(dout).mkdir(exist_ok=True)
+        dir_faces = f"{dir_video}faces/"
+        for i, index in enumerate(indices):
+            dout1 = '{0}f{1:02d}/'.format(dout, i)
+            Path(dout1).mkdir(exist_ok=True)
+            prev_id = 0
+            counter = 0
+            dout2 = "{0}t{1:04d}/".format(dout1, counter)
+            for j in index:
+                diff = j - prev_id - 1
+                if diff:
+                    dout2 = "{0}t{1:04d}/".format(dout1, counter)
+                    Path(dout2).mkdir(exist_ok=True)
+                    counter += 1
+                fout = '{0}fr{1:06d}_face{2:02d}.png'.format(dout2, j, i)
+                fin = fout.replace(dout2, dir_faces)
+                shutil.copy(fin, fout)
+                prev_id = j
+
+    if do_iou:
+        dins = [d + '/' for d in glob.glob(f'{dir_data}/*/meta') if Path(d).is_dir()]
+        for dir_video in dins:
+            calculate_iou_bb_neighboring_frames(dir_video, dir_video + 'iou.pkl', nframes)
+
+    if do_histodiff:
+        dins = [d + '/' for d in glob.glob(f'{dir_data}/*/predictions') if Path(d).is_dir()]
+        # for dir_video in dins:
+        #     fout = dir_video + 'id_scores_arr.pkl'
+        #
+        #     f_pr
+
+        if do_renaming:
+            dirs = [d for d in glob.glob(dir_data + '*/predictions/')]
+
+            subjects = [d.replace('predictions', '').replace('//', '/').split('/')[-1] for d in dirs]
+            if not subjects or not len(subjects[0]):
+                subjects = [d.replace('predictions', '').replace('//', '/').split('/')[-2] for d in dirs]
+
+            # for d in glob.glob(dir_data + '*/predictions/')]
+            for subject in subjects:
+                print(subject)
+                dir_video = f'{dir_data}{subject}/'
+                rename_by_convention(dir_video)
+
+            if False:
+                # df_meta.iloc[0] = df_meta.iloc[1]
 
 # meta = get_video_metadata(f_video)
 # video = cv2.VideoCapture(f_video)
