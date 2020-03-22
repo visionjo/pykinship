@@ -63,20 +63,51 @@ for dir_face in dir_faces:
             continue
 
         print(f_cur_shot)
+        fouts = [f.replace('-meta.json', '.png').replace('/scenes/faces', '/scenes_parsed/') for f in f_cur_shot]
+        if npredictions == 3:
+            if np.sum([k for k in predictions.values()]) > 1:
+                # case 2, same face in all of 3 thumbnails of shot
+                copy_matched_data(f_cur_shot, fouts)
+            continue
+            # elif np.sum(predictions) == 2:
+            #     # case 3, two of 3 shots true ID'd
+            #     copy_matched_data(f_cur_shot, fouts)
+            # continue
+        df = pd.DataFrame(tuple(meta.items()))
+        df2 = pd.DataFrame(tuple(predictions.items()))
+        df.set_index(0, inplace=True)
+        df['p'] = False
+        df2.set_index(0, inplace=True)
+        df.loc[df2.index, 'p'] = df2[1]
+        df.columns = ['bb', 'p']
+        df.reset_index(inplace=True)
+        df['shot'] = df.apply(lambda x: x[0].split('-')[1], axis=1)
+        df['clip'] = df.apply(lambda x: x[0].split('-')[2], axis=1)
+        df['face'] = df.apply(lambda x: x[0].split('-')[3], axis=1)
 
-        # case 1, single face in all 3 snapshots of shot
-        if npredictions == 3 and False:
-            if np.all(predictions):
-                fouts = [f.replace('-meta.json', '.png') for f in f_cur_shot]
-                print(fouts)
-                [shutil.copy(f, f.replace('/scenes/faces/', '/parse_scenes/'))
-                 for f in fouts]
-                fout = "-".join(
-                    f_cur_shot[0].replace('/scenes/faces/', '/parse_scenes/').split('-')[:-1]) + '-bb.csv'
-                pd.DataFrame(meta).to_csv(fout, header=False, index=False)
-                # [shutil.copy(f, )
-                #  for f in fouts]
-            else:
-                print('no prediction for {}'.format(shot_id))
-        elif np.any(np.sum(predictions, axis=1) == 3):
-            pass
+        # np.zeros((len(df), len(df)))
+        # {k: v for k, v, p in zip(meta.items(), predictions.keys()) if p}
+        thumbnail_ids = np.unique([f.split('-')[-3] for f in f_cur_shot])
+        df['nn'] = None
+        prev = None
+        for thumbnail_id in thumbnail_ids:
+            df_clip = df.loc[df['clip'] == thumbnail_id]
+            if prev is not None:
+                for k, row in df_clip.iterrows():
+                    print(row)
+                    ious = prev.apply(lambda x: bb_intersection_over_union(x['bb'], row['bb']), axis=1)
+                    ids_nn = ious.argmax()
+                    if ious.iloc[ids_nn] > .6 and len(df_clip) > ids_nn:
+                        df.loc[prev.iloc[[ids_nn]].index, 'nn'] = df_clip.iloc[[ids_nn]].index
+            prev = df_clip.copy()
+
+        df.to_csv(f_cur_shot[0].replace('scenes/faces/', '/scenes_parsed/').replace('-meta.json', '')[:-5] + '.csv')
+        if np.any(np.sum([k for k in predictions.values()], axis=1) == 3):
+            continue
+        if np.mean(np.array(predictions).mean()) > 0.9:
+            fouts = [f for f in f_cur_shot]
+            print(fouts)
+            [shutil.copy(fin.replace('-meta.json', '.png'), fout) for fin, fout in zip(f_cur_shot, fouts)]
+
+            fout = "-".join(fouts[0].split('-')[:-1]) + '-bb.csv'
+            pd.DataFrame(meta).to_csv(fout, header=False, index=False)
