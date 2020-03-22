@@ -51,7 +51,15 @@ def bb_intersection_over_union(box1, box2):
     return iou
 
 
+def check_if_renamed(dirin):
+    f_faces = [str(f).split('/')[-1] for f in Path(dirin).joinpath('faces').glob('*.png')]
+    nchars = np.array([len(f) for f in f_faces])
+    return np.all(nchars == 19)
+
+
 def rename_by_convention(dir_in):
+    if check_if_renamed(dir_in):
+        return
     all_files = glob.glob(dir_in + '*/fr*')
     for afile in all_files:
         ofile = afile.split('/')[-1]
