@@ -202,28 +202,30 @@ def calculate_iou_bb_neighboring_frames(din, fout, nframes):
     pd.to_pickle(li_track_ids, fout)
 
 
-dir_data = '/Volumes/MySpace/kinship/'
-dir_video = f'{dir_data}ben_affleck.ben/'
-f_video = '/Volumes/MySpace/kinship/ben_affleck.ben/ben_affleck.ben.mp4'
-meta = get_video_metadata(f_video)
+def main():
+    dir_data = '/Volumes/MySpace/kinship/'
 
-dir_predictions = f'{dir_video}predictions/'
-dir_meta = f'{dir_video}meta/'
-dir_encodings = f'{dir_video}encodings/'
-dir_faces = f'{dir_video}faces/'
+    dir_video = f'{dir_data}ben_affleck.ben/'
+    f_video = f'{dir_video}ben_affleck.ben.mp4'
+    print_video_metadata(f_video)
+    meta = get_video_metadata(f_video)
 
-f_metas = glob.glob(dir_meta + '*.json')
-ids = get_face_ids_from_image_list(f_metas)
+    do_iou = False
+    do_histodiff = False
+    do_renaming = False
+    do_predictions = True
 
-i = "face" + ids[0]
-cfaces = [f for f in f_metas if f.count(i)]
+    dir_meta = f'{dir_video}meta/'
 
-nframes = meta['frame_count']
+    f_metas = glob.glob(dir_meta + '*.json')
+    ids = get_face_ids_from_image_list(f_metas)
 
-cur_track = 0
+    i = "face" + ids[0]
+    cfaces = [f for f in f_metas if f.count(i)]
+
+    nframes = meta['frame_count']
 
     ids = [int(i) for i in ids]
-    # for k, cface in enumerate(cfaces):
 
     if do_predictions:
         # dins = [d + '/' for d in glob.glob(f'{dir_data}/*/predictions') if Path(d).is_dir()]
@@ -283,10 +285,6 @@ cur_track = 0
 
     if do_histodiff:
         dins = [d + '/' for d in glob.glob(f'{dir_data}/*/predictions') if Path(d).is_dir()]
-        # for dir_video in dins:
-        #     fout = dir_video + 'id_scores_arr.pkl'
-        #
-        #     f_pr
 
         if do_renaming:
             dirs = [d for d in glob.glob(dir_data + '*/predictions/')]
@@ -302,32 +300,20 @@ cur_track = 0
                 rename_by_convention(dir_video)
 
             if False:
-                # df_meta.iloc[0] = df_meta.iloc[1]
 
-# meta = get_video_metadata(f_video)
-# video = cv2.VideoCapture(f_video)
+                all_faces = glob.glob(f"{dir_faces}fr*")
+                all_faces.sort()
 
-all_faces = glob.glob(f"{dir_faces}fr*")
-all_faces.sort()
+                ids = get_face_ids_from_image_list(all_faces)
+                for i in ids:
+                    f_faces = glob.glob(f"{dir_faces}fr*{i}.png")
+                for frame_id in range(meta['frame_count']):
+                    f_face = f"{dir_faces}fr{frame_id}*"
+                file_faces = glob.glob(f_face + '_face*')
 
-ids = get_face_ids_from_image_list(all_faces)
-for i in ids:
-    f_faces = glob.glob(f"{dir_faces}fr*{i}.png")
-for frame_id in range(meta['frame_count']):
-    f_face = f"{dir_faces}fr{frame_id}*"
-    file_faces = glob.glob(f_face + '_face*')
+                for j in range(len(file_faces)):
+                    face_id = file_faces[j].split('.')[-2].split('face')[-1]
+                print(face_id)
 
-    for j in range(len(file_faces)):
-        face_id = file_faces[j].split('.')[-2].split('face')[-1]
-        print(face_id)
-
-subjects = ['dan_gronkowski.rob', 'muhammad_ali.muhammad', 'hafez_al-assad.bashar', 'diane_gronkowski.rob',
-            'chris_gronkowski.rob', 'gord_gronkowski.rob', 'gordie_gronkowski.rob', 'glenn_gronkowski.rob',
-            'dan_gronkowski.rob', 'rob_gronkowski.rob', 'casey_affleck.ben',
-            'ben_affleck.ben']  # , 'deborah_phelps.michael']
-
-if do_renaming:
-    for subject in subjects:
-        print(subject)
-        dir_video = f'{dir_data}{subject}/'
-        rename_by_convention(dir_video)
+    if __name__ == '__main__':
+        main()
