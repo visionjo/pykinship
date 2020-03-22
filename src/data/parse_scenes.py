@@ -1,11 +1,18 @@
 from glob import glob
 
+import shutil
+import sys
+
+if not '../../src' in sys.path:
+    sys.path.append('../..')
 import numpy as np
 import pandas as pd
-import shutil
 from pathlib import Path
 
-from src.data.process_videos import meta_face_location_to_bb
+from src.data.process_videos import meta_face_location_to_bb, bb_intersection_over_union
+
+
+# bb_intersection_over_union()
 
 
 #
@@ -88,7 +95,7 @@ from src.data.process_videos import meta_face_location_to_bb
 # create_csv.CreateCsv(current_path + "/face_database/")
 
 def make_dirs(li_dirs):
-    [Path(d).mkdir(exist_ok=True) for d in li_dirs]
+    [Path(d).mkdir(exist_ok=True, parents=True) for d in li_dirs]
 
 
 dir_fids = '/home/jrobby/master-version/fiwdb/FIDs/'  # '/Users/jrobby/data/FIDs/'
