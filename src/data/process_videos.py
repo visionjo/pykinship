@@ -86,23 +86,106 @@ def get_face_ids_from_image_list(li_impaths):
     return ids
 
 
-def calculate_iou_for_neighboring_frames(din, fout):
+def percent_correct_match(din, fout, nframes):
     """
     :param din directory containing bb information (json)
     :param fout pickle file path to save array of iou values (K x F), where is K is number of frames and F is the max
                 number of faces in a frame at a given instance.
     """
+
+    track_ids = -1 * np.ones((nframes,))
+    li_histo_differences = []
+    hist_prev = 0
+    for k in range(nframes):
+        fin = '{0}fr{1:06d}_face{2:02d}.png'.format(din, k, n)
+
+        if Path(fin).is_file():
+            df_meta = cv2.imread(fin, )
+            if box_prev:
+                hist_cur = None
+
+                track_ids[k] = None
+
+            # if iou < .75:
+            #     cur_track += 1
+            # track_ids[k][1] = cur_track
+
+            box_prev = hist_cur
+        # else:
+        #     box_prev = -1
+    li_histo_differences.append(track_ids)
+    pd.to_pickle(li_histo_differences, fout)
+
+
+# ========== ========== ========== ==========
+# # Color Histogram
+# ========== ========== ========== ==========
+def calculate_color_histogram_diff_neighboring_frames(din, fout, nframes):
+    """
+    :param din directory containing bb information (json)
+    :param fout pickle file path to save array of iou values (K x F), where is K is number of frames and F is the max
+                number of faces in a frame at a given instance.
+    """
+    li_histo_differences = []
+    for n in ids:
+        track_ids = -1 * np.ones((nframes,))
+        hist_prev = 0
+        for k in range(nframes):
+            fin = '{0}fr{1:06d}_face{2:02d}.png'.format(din, k, n)
+
+            if Path(fin).is_file():
+                df_meta = cv2.imread(fin, )
+                if box_prev:
+                    iou = bb_intersection_over_union(box_cur, box_prev)
+
+                    track_ids[k] = iou
+
+                # if iou < .75:
+                #     cur_track += 1
+                # track_ids[k][1] = cur_track
+
+                box_prev = hist_cur
+            # else:
+            #     box_prev = -1
+        li_histo_differences.append(track_ids)
+    pd.to_pickle(li_histo_differences, fout)
+
+
+def meta_face_location_to_bb(f_json):
+    try:
+        df_meta = pd.read_json(f_json)
+        l, t, r, b = tuple(df_meta.iloc[1][2])
+        bb = l, t, r, b
+    except:
+        bb = None
+    return bb
+
+
+def calculate_iou_bb_neighboring_frames(din, fout, nframes):
+    """
+    :param din directory containing bb information (json)
+    :param fout pickle file path to save array of iou values (K x F), where is K is number of frames and F is the max
+                number of faces in a frame at a given instance.
+    """
+    f_metas = glob.glob(din + "*.json")
+    ids = get_face_ids_from_image_list(f_metas)
+
+    i = "face" + ids[0]
+    # cfaces = [f for f in f_metas if f.count(i)]
+    # nframes = meta['frame_count']
+    # cur_track = 0
+
+    ids = [int(i) for i in ids]
+
     li_track_ids = []
     for n in ids:
         track_ids = -1 * np.ones((nframes,))
         box_prev = 0
         for k in range(nframes):
-            fin = '{0}meta/fr{1:06d}_face{2:02d}.json'.format(din, k, n)
+            fin = '{0}fr{1:06d}_face{2:02d}.json'.format(din, k, n)
 
             if Path(fin).is_file():
-                df_meta = pd.read_json(fin)
-                l, t, r, b = tuple(df_meta.iloc[1][2])
-                box_cur = l, t, r, b
+                box_cur = meta_face_location_to_bb(fin)
                 if box_prev:
                     iou = bb_intersection_over_union(box_cur, box_prev)
 
