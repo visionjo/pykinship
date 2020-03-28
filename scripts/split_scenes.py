@@ -18,7 +18,10 @@ dirs_in = [d + '/' for d in glob.glob(data_dir + '*') if Path(d).is_dir()]
 # for din in reversed(dirs_in):
 def split_videos(din):
     din = din['path']
-    if Path(din.replace('raw', 'processed')).exists():
+    try:
+        Path(din.replace('raw', 'processed')).mkdir()
+    except:
+        print(Path(din.replace('raw', 'processed')), 'exists')
         return
     fid = din.split('/')[-2]
     print(fid)
