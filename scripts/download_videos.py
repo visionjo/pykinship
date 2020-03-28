@@ -1,20 +1,20 @@
-import pandas as pd
-import wget
 from pathlib import Path
+from warnings import warn
+
+import pandas as pd
+import swifter
+import wget
 from pytube import YouTube
 
-from src.data.videos import read_family_member_list
-
-f_urls = "../data/family_members.csv"
-d_out = "../data/fiw-videos/new-raw/"
-df = read_family_member_list(f_urls)
-
-cols = df.columns.to_list()
-video_cols = [c for c in cols if c.count('video')]
-df_videos = df[['ref'] + ['fid'] + ['mid'] + video_cols]
+# from swifter import swifter as sw
+print(str(swifter.__version__))
 
 
-def process_subject(row, dir_out=d_out):
+def process_subject(row, dir_out):
+    """
+    Download videos per subject
+    :param
+    """
     ref = row['ref']
     fid = f"{row['fid']}.{row['mid']}"
 
@@ -60,4 +60,58 @@ def process_subject(row, dir_out=d_out):
             stream.download(do)
 
 
-df_videos.swifter.apply(lambda x: process_subject(x, d_out), axis=1)
+def fetch_video(row, dir_out):
+    """
+    Download videos per VID
+    :param
+    """
+    vid, fid, url = row.values
+    # output pointers
+    dout = str(Path(dir_out).joinpath(fid).joinpath(vid)) + '/'
+
+    print(dout, vid)
+    try:
+        Path(dout).mkdir(parents=True)
+    except:
+        print(dout, 'already exists')
+        return
+    try:
+        # youtube handler
+        yt = YouTube(url)
+    except:
+        print(row)
+        return
+    # download thumbnail
+    url_t = yt.thumbnail_url
+    try:
+        t = wget.download(url_t, out=dout + 'thumbnail.png')
+    except:
+        warn(vid, "no thumbnail downloaded")
+
+    # prepare metadata to dump to file
+    with open(dout + 'meta.txt', 'w') as f:
+        f.write(url + '/n/n')
+        f.write(yt.title + '/n')
+        f.write("length: " + str(yt.length))
+        f.write("thumbnail url:" + url_t + '/n')
+        f.write(yt.description + '/n/n')
+
+    caption = yt.captions.get_by_language_code('en')
+    if caption:
+        cout = caption.generate_srt_captions()
+        with open(dout + 'caption.txt', 'w') as f:
+            f.write(cout)
+
+    stream = yt.streams.first()
+    stream.download(dout)
+
+
+f_master = "../data/fiw-videos/meta/fiw-vid-master.csv"
+d_out = "../data/fiw-videos/new-raw/"
+df = pd.read_csv(f_master)
+
+df_list = df[['vid', 'fid', 'url']].drop_duplicates()
+
+_ = [Path(d_out + d).mkdir(parents=True, exist_ok=True) for d in df_list.fid.unique()]
+
+df_list.swifter.apply(lambda x: fetch_video(x, d_out), axis=1)
