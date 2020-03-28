@@ -1,9 +1,9 @@
-from pathlib import Path
 from warnings import warn
 
 import pandas as pd
 import swifter
 import wget
+from pathlib import Path
 from pytube import YouTube
 
 # from swifter import swifter as sw
@@ -79,7 +79,7 @@ def fetch_video(row, dir_out):
         # youtube handler
         yt = YouTube(url)
     except:
-        print(row)
+        warn('Unable to load url', row)
         return
     # download thumbnail
     url_t = yt.thumbnail_url
@@ -96,11 +96,14 @@ def fetch_video(row, dir_out):
         f.write("thumbnail url:" + url_t + '/n')
         f.write(yt.description + '/n/n')
 
-    caption = yt.captions.get_by_language_code('en')
-    if caption:
-        cout = caption.generate_srt_captions()
-        with open(dout + 'caption.txt', 'w') as f:
-            f.write(cout)
+    try:
+        caption = yt.captions.get_by_language_code('en')
+        if caption:
+            cout = caption.generate_srt_captions()
+            with open(dout + 'caption.txt', 'w') as f:
+                f.write(cout)
+    except:
+        warn('Unable to download captions', dout)
 
     stream = yt.streams.first()
     stream.download(dout)
