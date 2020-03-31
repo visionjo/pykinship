@@ -6,7 +6,7 @@ from mtcnn import MTCNN
 from tqdm import tqdm
 
 dir_data = '../data/fiw-videos/new-processed/'
-
+''
 dir_videos = glob.glob(f"{dir_data}F????/v?????/")
 detector = MTCNN()
 for i, dir_vid in tqdm(enumerate(dir_videos)):
