@@ -9,7 +9,7 @@ from tqdm import tqdm
 import glob
 from pathlib import Path
 import numpy as np
-from evoLVe.backbone.model_irse import IR_152
+from src.models.model_irse import IR_152
 from torch import FloatTensor
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
