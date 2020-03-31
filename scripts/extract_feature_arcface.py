@@ -1,5 +1,6 @@
 # Helper function for extracting features from pre-trained models
-
+## Download model weights on google drive:
+# https://drive.google.com/file/d/1pA6iZYQ2i8BaVNn4ngXaKeIf6v50tk1m/view?usp=sharing
 import os
 
 import cv2
