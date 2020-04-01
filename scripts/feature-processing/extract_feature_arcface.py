@@ -6,14 +6,17 @@ import os
 import cv2
 import sys
 
-PACKAGE_PARENT = '../..'
-SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+PACKAGE_PARENT = "../.."
+SCRIPT_DIR = os.path.dirname(
+    os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
+)
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 # sys.path.append('../../')
-from torch.autograd import Variable
 
 import os
+
+import pandas as pd
 import argparse
 from tqdm import tqdm
 import glob
@@ -22,7 +25,11 @@ import numpy as np
 import torch
 from src.models.model_irse import IR_152
 
-cuda, Tensor = (True, torch.cuda.FloatTensor) if torch.cuda.is_available() else (False, torch.FloatTensor)
+cuda, Tensor = (
+    (True, torch.cuda.FloatTensor)
+    if torch.cuda.is_available()
+    else (False, torch.FloatTensor)
+)
 
 # Tensor = torch.FloatCuTensor
 # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -36,21 +43,47 @@ def l2_norm(input, axis=1):
     return output
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="face alignment")
-    parser.add_argument("-source_root", "--source_root", help="specify your source dir", default="../../data/fiw-videos/new-processed/", type=str)
-    parser.add_argument("-dest_root", "--dest_root", help="specify your destination dir", default="../../data/fiw-videos/new-processed/", type=str)
-    parser.add_argument("-model_path", "--model_path", help="specify path to model weights", default="../checkpoints/Backbone_IR_152_checkpoint.pth", type=str)
+    parser.add_argument(
+        "-source_root",
+        "--source_root",
+        help="specify your source dir",
+        default="../../data/fiw-videos/new-processed/",
+        type=str,
+    )
+    parser.add_argument(
+        "-dest_root",
+        "--dest_root",
+        help="specify your destination dir",
+        default="../../data/fiw-videos/new-processed/",
+        type=str,
+    )
+    parser.add_argument(
+        "-model_path",
+        "--model_path",
+        help="specify path to model weights",
+        default="../../models/Backbone_IR_152_checkpoint.pth",
+        type=str,
+    )
 
-    parser.add_argument("-im_size", "--crop_size", help="specify size of aligned faces, align and crop with padding", default=(112, 112), type=int)
+    parser.add_argument(
+        "-im_size",
+        "--crop_size",
+        help="specify size of aligned faces, align and crop with padding",
+        default=(112, 112),
+        type=int,
+    )
     args = parser.parse_args()
 
     source_root = args.source_root  # specify your source dir
     dest_root = args.dest_root  # specify your destination dir
-    imsize = args.crop_size  # specify size of aligned faces, align and crop with padding
+    imsize = (
+        args.crop_size
+    )  # specify size of aligned faces, align and crop with padding
     # model_root = "../model_ir_se50.pth"
     model_root = args.model_path
-    print('Backbone Model Root:', model_root)
+    print("Backbone Model Root:", model_root)
 
     cwd = os.getcwd()  # delete '.DS_Store' existed in the source_root
     os.chdir(source_root)
@@ -66,7 +99,7 @@ if __name__ == '__main__':
         model.load_state_dict(torch.load(model_root))
         model.cuda()
     else:
-        model.load_state_dict(torch.load(model_root, map_location=torch.device('cpu')))
+        model.load_state_dict(torch.load(model_root, map_location=torch.device("cpu")))
 
     # model.to(device)
 
@@ -77,11 +110,13 @@ if __name__ == '__main__':
     # for subfolder in tqdm(os.listdir(source_root)):
     for subfolder in tqdm(reversed(dir_videos)):
         # try:
-        Path(subfolder).joinpath('scenes').joinpath('encodings').mkdir(exist_ok=True)
+        Path(subfolder).joinpath("scenes").joinpath("encodings").mkdir(exist_ok=True)
         # except:
         #     continue
 
-        for imfile in Path(subfolder).joinpath('scenes').joinpath('cropped').glob('*.jpg'):
+        for imfile in (
+                Path(subfolder).joinpath("scenes").joinpath("cropped").glob("*.jpg")
+        ):
             print("Processing\t{}".format(imfile))
 
             # load image
@@ -133,19 +168,26 @@ if __name__ == '__main__':
             print(len(arr_ccrop))
             while len(arr_ccrop) > 256:
                 if tta:
-                    emb_batch = model(arr_ccrop[:256, ...]).cpu() + model(arr_flip[:256, ...]).cpu()
+                    emb_batch = (
+                            model(arr_ccrop[:256, ...]).cpu()
+                            + model(arr_flip[:256, ...]).cpu()
+                    )
                     features = l2_norm(emb_batch)
                 else:
                     features = l2_norm(model(arr_ccrop[:256, ...])).cpu()
 
                 for feature, imfile in zip(features, imref[:256]):
-                    image_name = str(imfile).replace('cropped', 'encodings').replace(".jpg", ".npy")
+                    image_name = (
+                        str(imfile)
+                            .replace("cropped", "encodings")
+                            .replace(".jpg", ".npy")
+                    )
                     # if not Path(image_name).is_file():
                     # continue
                     np.save(image_name, feature)
                     # features = np.load("features.npy")
 
-                    ref = str(imfile).replace(source_root, '')
+                    ref = str(imfile).replace(source_root, "")
                     encodings[ref] = features
                 arr_ccrop = arr_ccrop[256:, ...]
                 arr_flip = arr_flip[256:, ...]
@@ -160,13 +202,25 @@ if __name__ == '__main__':
                     features = l2_norm(model(arr_ccrop)).cpu()
 
                 for feature, imfile in zip(features, imref):
-                    image_name = str(imfile).replace('cropped', 'encodings').replace(".jpg", ".npy")
+                    image_name = (
+                        str(imfile)
+                            .replace("cropped", "encodings")
+                            .replace(".jpg", ".npy")
+                    )
                     # if not Path(image_name).is_file():
                     # continue
                     np.save(image_name, feature)
                     # features = np.load("features.npy")
 
-                    ref = str(imfile).replace(source_root, '')
+                    ref = str(imfile).replace(source_root, "")
                     encodings[ref] = features
 
-        np.save(str(Path(subfolder).joinpath('scenes').joinpath('encodings').joinpath('encodings.npy')), encodings)
+        pd.to_pickle(
+            encodings,
+            str(
+                Path(subfolder)
+                    .joinpath("scenes")
+                    .joinpath("encodings")
+                    .joinpath("encodings.pkl")
+            ),
+        )

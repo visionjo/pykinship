@@ -1,16 +1,15 @@
 # Helper function for extracting features from pre-trained models
-import torch
+import glob
+
+import argparse
 import cv2
 import numpy as np
-import os
-import argparse
-import matplotlib.pyplot as plt
-from tqdm import tqdm
-import glob
+import pandas as pd
+import torch
 from pathlib import Path
-import numpy as np
+from tqdm import tqdm
+
 from src.models.model_irse import IR_152
-from torch import FloatTensor
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 tta = True
@@ -23,22 +22,47 @@ def l2_norm(input, axis=1):
     return output
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="face alignment")
-    parser.add_argument("-source_root", "--source_root", help="specify your source dir", default="../data/fiw-videos/processed/", type=str)
-    parser.add_argument("-dest_root", "--dest_root", help="specify your destination dir", default="../data/fiw-videos/new-processed/", type=str)
-    parser.add_argument("-model_path", "--model_path", help="specify path to model weights", default="../evolve/checkpoints/Backbone_IR_152_checkpoint.pth",
-                        type=str)
+    parser.add_argument(
+        "-source_root",
+        "--source_root",
+        help="specify your source dir",
+        default="../../data/fiw-videos/processed/",
+        type=str,
+    )
+    parser.add_argument(
+        "-dest_root",
+        "--dest_root",
+        help="specify your destination dir",
+        default="../../data/fiw-videos/new-processed/",
+        type=str,
+    )
+    parser.add_argument(
+        "-model_path",
+        "--model_path",
+        help="specify path to model weights",
+        default="../../models/Backbone_IR_152_checkpoint.pth",
+        type=str,
+    )
 
-    parser.add_argument("-im_size", "--crop_size", help="specify size of aligned faces, align and crop with padding", default=(112, 112), type=int)
+    parser.add_argument(
+        "-im_size",
+        "--crop_size",
+        help="specify size of aligned faces, align and crop with padding",
+        default=(112, 112),
+        type=int,
+    )
     args = parser.parse_args()
 
     source_root = args.source_root  # specify your source dir
     dest_root = args.dest_root  # specify your destination dir
-    imsize = args.crop_size  # specify size of aligned faces, align and crop with padding
+    imsize = (
+        args.crop_size
+    )  # specify size of aligned faces, align and crop with padding
     # model_root = "../model_ir_se50.pth"
     model_root = args.model_path
-    print('Backbone Model Root:', model_root)
+    print("Backbone Model Root:", model_root)
 
     # cwd = os.getcwd()  # delete '.DS_Store' existed in the source_root
     # os.chdir(source_root)
@@ -53,7 +77,7 @@ if __name__ == '__main__':
     if torch.cuda.is_available():
         model.load_state_dict(torch.load(model_root))
     else:
-        model.load_state_dict(torch.load(model_root, map_location=torch.device('cpu')))
+        model.load_state_dict(torch.load(model_root, map_location=torch.device("cpu")))
     model.to(device)
 
     # extract features
@@ -61,7 +85,7 @@ if __name__ == '__main__':
 
     for dir_mid in tqdm(dir_mids):
 
-        fid_mid = dir_mid.split('/')[-1].replace('.MID', '/MID')
+        fid_mid = dir_mid.split("/")[-1].replace(".MID", "/MID")
         dout = Path(dest_root).joinpath(fid_mid)
         try:
             dout.mkdir()
@@ -70,7 +94,7 @@ if __name__ == '__main__':
 
         arr_ccropped, arr_flipped = None, None
         imref = []
-        for imfile in Path(dir_mid).glob('*.jpg'):
+        for imfile in Path(dir_mid).glob("*.jpg"):
 
             print("Processing\t{}".format(imfile))
             # load image
@@ -118,18 +142,20 @@ if __name__ == '__main__':
 
         with torch.no_grad():
             if tta:
-                emb_batch = model(arr_ccropped.to(device)).cpu() + model(arr_flipped.to(device)).cpu()
+                emb_batch = (
+                        model(arr_ccropped.to(device)).cpu()
+                        + model(arr_flipped.to(device)).cpu()
+                )
                 encodings = l2_norm(emb_batch)
             else:
                 encodings = l2_norm(model(arr_ccropped.to(device)).cpu())
         dic_encodings = {}
         for encoding, imfile in zip(encodings, imref):
-            ref = str(imfile).replace(source_root, '')
-            feat_name = imfile._str.split('/')[-1].replace(".jpg", ".npy")
+            ref = str(imfile).replace(source_root, "")
+            feat_name = imfile._str.split("/")[-1].replace(".jpg", ".npy")
             fout = dout.joinpath(feat_name)
             np.save(fout, encoding)
 
             # features = np.load("features.npy")
             dic_encodings[ref] = encoding
-
-        np.save(str(Path(dout).joinpath('encodings.npy')), dic_encodings)
+        pd.to_pickle(dic_encodings, str(Path(dout).joinpath("encodings.pkl")))
