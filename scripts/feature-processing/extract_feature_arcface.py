@@ -1,29 +1,26 @@
-# Helper function for extracting features from pre-trained models
-## Download model weights on google drive:
-# https://drive.google.com/file/d/1pA6iZYQ2i8BaVNn4ngXaKeIf6v50tk1m/view?usp=sharing
+import glob
 import os
 
+import argparse
 import cv2
+import numpy as np
+import pandas as pd
 import sys
+import torch
+from pathlib import Path
+from tqdm import tqdm
 
 PACKAGE_PARENT = "../.."
 SCRIPT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
 )
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
-
-# sys.path.append('../../')
-
-import os
-
-import pandas as pd
-import argparse
-from tqdm import tqdm
-import glob
-from pathlib import Path
-import numpy as np
-import torch
 from src.models.model_irse import IR_152
+
+# Helper function for extracting features from pre-trained models
+# Download model weights on google drive:
+# https://drive.google.com/file/d/1pA6iZYQ2i8BaVNn4ngXaKeIf6v50tk1m/view?usp=sharing
+
 
 cuda, Tensor = (
     (True, torch.cuda.FloatTensor)
@@ -80,7 +77,7 @@ if __name__ == "__main__":
     dest_root = args.dest_root  # specify your destination dir
     imsize = (
         args.crop_size
-    )  # specify size of aligned faces, align and crop with padding
+    )
     # model_root = "../model_ir_se50.pth"
     model_root = args.model_path
     print("Backbone Model Root:", model_root)
@@ -177,11 +174,10 @@ if __name__ == "__main__":
                     features = l2_norm(model(arr_ccrop[:256, ...])).cpu()
 
                 for feature, imfile in zip(features, imref[:256]):
-                    image_name = (
-                        str(imfile)
-                            .replace("cropped", "encodings")
-                            .replace(".jpg", ".npy")
-                    )
+                    image_name = (str(imfile)
+                                  .replace("cropped", "encodings")
+                                  .replace(".jpg", ".npy")
+                                  )
                     # if not Path(image_name).is_file():
                     # continue
                     np.save(image_name, feature)
@@ -202,11 +198,10 @@ if __name__ == "__main__":
                     features = l2_norm(model(arr_ccrop)).cpu()
 
                 for feature, imfile in zip(features, imref):
-                    image_name = (
-                        str(imfile)
-                            .replace("cropped", "encodings")
-                            .replace(".jpg", ".npy")
-                    )
+                    image_name = (str(imfile)
+                                  .replace("cropped", "encodings")
+                                  .replace(".jpg", ".npy")
+                                  )
                     # if not Path(image_name).is_file():
                     # continue
                     np.save(image_name, feature)
@@ -215,12 +210,9 @@ if __name__ == "__main__":
                     ref = str(imfile).replace(source_root, "")
                     encodings[ref] = features
 
-        pd.to_pickle(
-            encodings,
-            str(
-                Path(subfolder)
-                    .joinpath("scenes")
-                    .joinpath("encodings")
-                    .joinpath("encodings.pkl")
-            ),
-        )
+        pd.to_pickle(encodings,
+                     str(Path(subfolder)
+                         .joinpath("scenes")
+                         .joinpath("encodings")
+                         .joinpath("encodings.pkl")),
+                     )

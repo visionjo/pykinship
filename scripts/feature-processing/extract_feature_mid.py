@@ -1,4 +1,6 @@
-# Helper function for extracting features from pre-trained models
+"""
+Helper function for extracting features from pre-trained models
+"""
 import glob
 
 import argparse
