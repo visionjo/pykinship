@@ -60,8 +60,7 @@ def process_scenes(dir_in, dir_out):
             )
 
 
-# dir_data = '../data/fiw-videos/new-processed/'
-dir_data = '/home/jrobby/new-processed/'
+dir_data = '../data/fiw-videos/new-processed/'
 dirs_scenes = glob.glob(dir_data + '*/*/scenes/')
 dirs_scenes.sort()
 
