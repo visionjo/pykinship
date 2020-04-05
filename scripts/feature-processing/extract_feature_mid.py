@@ -30,14 +30,14 @@ if __name__ == "__main__":
         "-source_root",
         "--source_root",
         help="specify your source dir",
-        default="../../data/fiw-videos/processed/",
+        default="../../data/fiw-videos/FIW-MM/",
         type=str,
     )
     parser.add_argument(
         "-dest_root",
         "--dest_root",
         help="specify your destination dir",
-        default="../../data/fiw-videos/new-processed/",
+        default="../../data/fiw-videos/FIW-MM/",
         type=str,
     )
     parser.add_argument(
