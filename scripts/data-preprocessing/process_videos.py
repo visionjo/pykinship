@@ -203,7 +203,7 @@ def calculate_iou_bb_neighboring_frames(din, fout, nframes):
 
 
 def main():
-    dir_data = '/Volumes/MySpace/kinship/'
+    dir_data = '../../data/fiw-videos/raw/'
 
     dir_video = f'{dir_data}ben_affleck.ben/'
     f_video = f'{dir_video}ben_affleck.ben.mp4'

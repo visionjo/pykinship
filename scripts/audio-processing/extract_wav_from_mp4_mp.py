@@ -21,7 +21,7 @@ def save_audio(f):
 # Step 1: Init multiprocessing.Pool()
 ncpu = mp.cpu_count()
 
-dir_data = '../data/fiw-videos/new-processed/'
+dir_data = '../../data/fiw-videos/new-processed/'
 f_scenes = glob.glob(f"{dir_data}*/*/scenes/*.mp4")
 
 if not overwrite:

@@ -5,7 +5,7 @@ import moviepy.editor as mp
 from pathlib import Path
 from tqdm import tqdm
 
-dir_data = '../data/fiw-videos/new-processed/'
+dir_data = '../../data/fiw-videos/new-processed/'
 f_scenes = glob.glob(f"{dir_data}*/*/scenes/*.mp4")
 
 dirs_out = [Path(f).parent.joinpath('audio') for f in f_scenes]
