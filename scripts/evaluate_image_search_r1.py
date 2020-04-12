@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
@@ -71,7 +72,7 @@ def prepare_gallery(path_file):
         gallery_features = df_gallery.path.swifter.apply(get_feature)
         pd.to_pickle(gallery_features, path_file)
         print(f"Saved {path_file}")
-    return gallery_features
+    return gallery_features.values
 
 
 # set paths
@@ -96,3 +97,16 @@ df_gallery["path"] = str(path_dir_features) + "/" + df_gallery[
 df_probes = pd.DataFrame(probe_lut, columns=["fid", "ref", "relatives"])
 
 df_gallery_features = prepare_gallery(path_features_gallery)
+arr = None
+for features in df_gallery_features:
+    # format gallery as feature matrix Nxd, where N-sample count; d-dims
+    for feature in features[1].values():
+        arr = np.concatenate((arr, feature)) if arr is not None else feature
+
+for fid in fids:
+    # for each FID
+    df_probe = df_probes.loc[df_probes.fid == fid]
+
+    path_features = (path_dir_features / df_probe['ref'].values[0]).joinpath(
+        'encodings.pkl')
+    f = pd.read_pickle(path_features)
