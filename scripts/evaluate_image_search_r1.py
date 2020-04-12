@@ -63,15 +63,16 @@ def get_feature(fpath):
     return ref, features_lut
 
 
-def prepare_gallery(path_file):
+def prepare_gallery(path_file, save_intermediate=False):
     # prepare gallery
     if path_file.is_file():
         gallery_features = pd.read_pickle(path_file)
         print(f"Loaded {path_file}")
     else:
         gallery_features = df_gallery.path.swifter.apply(get_feature)
-        pd.to_pickle(gallery_features, path_file)
-        print(f"Saved {path_file}")
+        if save_intermediate:
+            pd.to_pickle(gallery_features, path_file)
+            print(f"Saved {path_file}")
     return gallery_features.values
 
 
@@ -85,6 +86,7 @@ path_dir_test = path_dir_lists.joinpath("test")
 gallery_list, probe_lut, fids = prepare_lists(path_dir_test)
 
 path_features_gallery = path_dir_test / "gallery-features.pkl"
+path_feature_matrix_gallery = path_dir_test / "gallery-feature-matrix.pkl"
 path_features_probe = path_dir_test / "probe-features.pkl"
 
 mid_set = list(set([el[2] for el in gallery_list]))
@@ -97,11 +99,16 @@ df_gallery["path"] = str(path_dir_features) + "/" + df_gallery[
 df_probes = pd.DataFrame(probe_lut, columns=["fid", "ref", "relatives"])
 
 df_gallery_features = prepare_gallery(path_features_gallery)
-arr = None
-for features in df_gallery_features:
-    # format gallery as feature matrix Nxd, where N-sample count; d-dims
-    for feature in features[1].values():
-        arr = np.concatenate((arr, feature)) if arr is not None else feature
+
+if path_feature_matrix_gallery.is_file():
+    arr = pd.read_pickle(path_feature_matrix_gallery)
+else:
+    arr = None
+    for features in df_gallery_features:
+        # format gallery as feature matrix Nxd, where N-sample count; d-dims
+        for feature in features[1].values():
+            arr = np.concatenate((arr, feature)) if arr is not None else feature
+    pd.to_pickle(arr, path_feature_matrix_gallery)
 
 for fid in fids:
     # for each FID
