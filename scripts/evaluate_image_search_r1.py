@@ -100,20 +100,37 @@ df_probes = pd.DataFrame(probe_lut, columns=["fid", "ref", "relatives"])
 
 df_gallery_features = prepare_gallery(path_features_gallery)
 
+counter = 0
+for features in df_gallery_features:
+    # format gallery as feature matrix Nxd, where N-sample count; d-dims
+    if features:
+        counter += len(list(features[1].keys()))
+
 if path_feature_matrix_gallery.is_file():
+    print(f"Loading: {path_feature_matrix_gallery}")
     arr = pd.read_pickle(path_feature_matrix_gallery)
 else:
-    arr = None
-    for features in df_gallery_features:
+    arr = np.empty((counter, 512))
+    counter1 = 0
+    for features in tqdm(df_gallery_features):
         # format gallery as feature matrix Nxd, where N-sample count; d-dims
-        for feature in features[1].values():
-            arr = np.concatenate((arr, feature)) if arr is not None else feature
+        if features:
+            for feature in features[1].values():
+                nfeatures = len(feature)
+                try:
+                    arr[counter1:(counter1 + nfeatures)] = feature
+                    counter1 += nfeatures
+                except:
+                    pass
+                finally:
+                    arr[-nfeatures:] = feature
     pd.to_pickle(arr, path_feature_matrix_gallery)
 
-for fid in fids:
+for fid in tqdm(fids):
     # for each FID
     df_probe = df_probes.loc[df_probes.fid == fid]
 
     path_features = (path_dir_features / df_probe['ref'].values[0]).joinpath(
         'encodings.pkl')
-    f = pd.read_pickle(path_features)
+    if path_features.is_file():
+        f = pd.read_pickle(path_features)
