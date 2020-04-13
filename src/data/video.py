@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from pathlib import Path
-
+from tqdm import tqdm
 
 def wget_video(
         name, url,
@@ -208,11 +208,16 @@ def process_scenes(dir_in, dir_out, encodings=None):
     """ process first, middle, and last image of each scene to determine whether MID is present.
     :param
     """
-    Path(dir_out).mkdir()
-    imfiles = glob.glob(dir_in + '*.jpg')
+    Path(dir_out).mkdir(exist_ok=True)
+    imfiles = [f for f in glob.glob(dir_in + '*.jpg') if f.count('Scene-')]
     imfiles.sort()
-    imfiles = np.reshape(imfiles, (-1, 3))
-    for shot_id, imstack in enumerate(imfiles):
+    shot_ids = np.unique(np.array([f.split('-')[-2] for f in imfiles]))
+    shots = np.unique(shot_ids)
+    imfiles = np.array(imfiles)
+    # imfiles = np.reshape(imfiles, (-1, 3))
+
+    for i, shot_id in enumerate(shots):
+        imstack = imfiles[np.where(shot_ids==shot_id)[0]]
         # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
         for face_id, imfile in enumerate(imstack):
             suffix = imfile.split('.')[-2][-7:]
@@ -285,23 +290,23 @@ if __name__ == "__main__":
     # df.apply(lambda x: , axis=1)
     # process_se(df)
     if procese_shots:
-        dir_data = '/home/jrobby/kinship/'
-        dirs_scenes = glob.glob(dir_data + '*/scenes/')
+        dir_data = '/home/jrobby/kinship/processed/'
+        # dir_data = '/Volumes/MyWorld/FIW_Video/data/processed/'
+        dirs_scenes = glob.glob(dir_data + '*/*/scenes/')
         dirs_scenes.sort()
 
-        subjects = [d.replace(dir_data, '').replace('/scenes/', '') for d in dirs_scenes]
 
-        for subject in subjects:
-            dout = dir_scenes + subject + '/scenes/faces/'
+        for dir_scene in tqdm(dirs_scenes):
+
+            print(dir_scene)
+            subject = dir_scene.split('/')[-4]
+            dir_scene = dir_scene + '/'
             print(subject)
-            if not (subject in df.ref.to_list() and not Path(dout).exists()):
-                continue
-            mid = df.loc[df.ref == subject, 'mid'].values[0]
-            fid = df.loc[df.ref == subject, 'fid'].values[0]
-            dir_mid = f"{dir_fids}{fid}/MID{mid}/"
-            encodings = encode_mids(dir_mid)
-            encodings = list(encodings.values())
-            process_scenes(dir_scenes + subject + '/scenes/', dout, encodings)
+            dout = dir_scene + '/detections/'
+            print(subject)
+            encodings = pd.read_pickle(str(Path(dir_data).joinpath(subject)) + '/fiw-encodings.pkl')
+
+            process_scenes(dir_scene, dout, encodings)
 
     # if __name__ == "__main__":
     # main()
