@@ -7,6 +7,10 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+import swifter
+
+print(swifter.__version__)
+
 
 # %%
 

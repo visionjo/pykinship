@@ -10,6 +10,8 @@ import torch
 from pathlib import Path
 from tqdm import tqdm
 
+import src.tools.io
+
 PACKAGE_PARENT = "../.."
 SCRIPT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
@@ -34,7 +36,7 @@ cuda, Tensor = (
 
 
 def encode_faces(din, dout, ext=".jpg", tta=True):
-    dout.mkdir(exist_ok=True)
+    src.tools.io.mkdir(exist_ok=True)
     # except:
     #     continue
 

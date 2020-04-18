@@ -1,29 +1,38 @@
 #!/usr/bin/env bash
 
-DIN=/Volumes/MyWorld/FIW_Video/data/processed/
-SUBSTR="scenes/"
-EXT=".mkv"
+DIN=/Volumes/MyWorld/FIW-MM/data/FIDs-MM/
+SUBSTR="clips/audio/"
+SUBSTR1="clips/"
+#EXT=".mkv"
 EXT_VIDEO=".mp4"
-EXT_AUDIO=".mp3"
+EXT_AUDIO=".wav"
 DOT="."
-
+# 16-bit FLAC audio
+#files at a 16kHz
 #FLAG_AUDIO=1
-
+#ffmpeg -i input.mp4 -vn -acodec pcm_s16le -ar 16 -ac 1 output.wav
 #FLAG_VIDEO=0
 
 STR_LEN=${#DIN}
-for vfile in ${DIN}*/video*/scenes/*mp4 ; do
+for vfile in ${DIN}F????/MID*/clips/*/*mp4 ; do
     #  dout=${vfile:0:STR_LEN}
-    #  echo"$(dirname "${vfile}")/audio"
+    fout="${vfile/$SUBSTR1/$SUBSTR}"
+    parentdir="$(dirname "$fout")"
+    fname="$(basename "$fout")"
+    fout=${fname/$EXT_VIDEO/$EXT_AUDIO}
+    tosave="${parentdir}_${fout}"
     #  if 1; then
-    dout="$(dirname "${vfile}")/audio"
-    mkdir -p  ${dout}
-    fout=${vfile/$SUBSTR/scenes/audio/}
-    fout=${fout/$EXT_VIDEO/$EXT_AUDIO}
 
-    #    echo $vfile
-    echo $fout
-    ffmpeg -i ${vfile} -an ${fout}
+    dout="$(dirname "${tosave}")"
+    echo $tosave
+    mkdir -p  ${dout}
+    #    fout=${vfile/$SUBSTR/scenes/audio/}
+    #    fout=${fout/$EXT_VIDEO/$EXT_AUDIO}
+    #
+    #    #    echo $vfile
+    #    echo $fout
+    ffmpeg -i ${vfile} -vn -acodec pcm_s16le -y -ar 16000 -ac 1 ${tosave}
+#    ffmpeg -i ${vfile} -an ${tosave}
 done
 
 #    ffmpeg -i ${vfile} -sn ${fout}txt

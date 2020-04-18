@@ -1,11 +1,21 @@
-configparser_value_types.py
 from configparser import ConfigParser
+from pathlib import Path
 
 parser = ConfigParser()
-parser.read('types.ini')
+
+parser.read('configurations.ini')
+
+if parser.getint('project', 'verbose'):
+    print('io:')
+for name in parser.options('io'):
+    parser['io'][name] = parser.get('io', name)
+
+    if parser.getint('project', 'verbose'):
+        print('  {:<12} : -> {}'.format(
+            name, parser['io'][name]))
 
 print('Integers:')
-for name in parser.options('ints'):
+for name in parser.options('io'):
     string_value = parser.get('ints', name)
     value = parser.getint('ints', name)
     print('  {:<12} : {!r:<7} -> {}'.format(
