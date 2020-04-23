@@ -67,3 +67,13 @@ for f_video in tqdm(f_videos):
                 np.savetxt(path_bb_out, bbs[i], delimiter=',')
         else:
             print("{} is discarded due to non-detected landmarks!".format(path_image_out))
+
+
+def text(filenames):
+    results = []
+    for filename in filenames:
+        basename = filename.split('.')[0]
+        transcript = basename.replace('1', 'YES').replace('0', 'NO').replace('_', " ")
+        results.append("{} {}".format(basename.split('.')[0], transcript))
+
+    return '\n'.join(sorted(results))
