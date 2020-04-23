@@ -6,10 +6,10 @@ from sklearn.metrics import roc_curve, auc
 import argparse
 
 # from html4vision import Col, imagetable
-from src.utils import mkdir
+from src.tools.io import mkdir
 
 do_scores = False
-do_html=False
+do_html = False
 
 dir_data = '../data/v0.1.2/'
 dir_interim = '../data/interim/'
@@ -55,7 +55,6 @@ for fold in folds:
     with open(f"{dir_fold}roc_auc.csv", 'w') as f:
         f.write(f"{roc_auc}")
     aucs.append(roc_auc)
-
 
 np.savetxt(dir_out + 'auc_scores.csv', aucs, delimiter=',')
 mean_tpr = np.mean(tprs, axis=0)

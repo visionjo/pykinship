@@ -1,8 +1,8 @@
 import pandas as pd
 
 f_fiw_list = '../../data/family_members.csv'
-f_vggvox = '../../data/vox1_meta.csv'
-f_db_union = '../../data/vggface_fiw_name_overlap.csv'
+f_vggvox = '../../data/vox2_meta.csv'
+f_db_union = '../../data/vggface_fiw_name_overlap2.csv'
 df_fiw = pd.read_csv(f_fiw_list)
 
 # del df_fiw[df_fiw.columns[-1]]
@@ -15,8 +15,8 @@ df_fiw['overlap'] = 0
 df_fiw['vgg_id'] = -1
 
 df_vgg = pd.read_csv(f_vggvox, sep='\t')
-df_vgg['lastname'] = df_vgg['VGGFace1 ID'].apply(lambda x: x.split('_')[-1]).str.lower()
-df_vgg['firstname'] = df_vgg['VGGFace1 ID'].apply(lambda x: x.split('_')[0]).str.lower()
+df_vgg['lastname'] = df_vgg['VGGFace2 ID'].apply(lambda x: x.split('_')[-1]).str.lower()
+df_vgg['firstname'] = df_vgg['VGGFace2 ID'].apply(lambda x: x.split('_')[0]).str.lower()
 
 
 def merge_lists(row, df):

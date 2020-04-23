@@ -14,13 +14,24 @@ PACKAGE_PARENT = "../.."
 SCRIPT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
 )
+print(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+
+# PACKAGE_PARENT = "/home/jrobby/Documents/pykinship/src"
+# sys.path.append(PACKAGE_PARENT)
+# SCRIPT_DIR = os.path.dirname(
+#     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
+# )
+# sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+# import src.tools.io
+
 from src.models.model_irse import IR_152
 
 # Helper function for extracting features from pre-trained models
 # Download model weights on google drive:
 # https://drive.google.com/file/d/1pA6iZYQ2i8BaVNn4ngXaKeIf6v50tk1m/view?usp=sharing
 
+imref = []
 
 cuda, Tensor = (
     (True, torch.cuda.FloatTensor)
@@ -28,13 +39,15 @@ cuda, Tensor = (
     else (False, torch.FloatTensor)
 )
 
-
 # Tensor = torch.FloatCuTensor
 # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+arr_ccrop, arr_flip = None, None
+
 
 def encode_faces(din, dout, ext=".jpg", tta=True):
-    dout.mkdir(exist_ok=True)
+    # Pat
+    # src.tools.io.mkdir(exist_ok=True)
     # except:
     #     continue
 
@@ -94,9 +107,9 @@ def encode_faces(din, dout, ext=".jpg", tta=True):
                         model(arr_ccrop[:256, ...]).cpu()
                         + model(arr_flip[:256, ...]).cpu()
                 )
-                features = l2_norm(emb_batch)
+                features = l2_norm(emb_batch).data.cpu().numpy()
             else:
-                features = l2_norm(model(arr_ccrop[:256, ...])).cpu()
+                features = l2_norm(model(arr_ccrop[:256, ...])).data.cpu().numpy()
 
             for feature, imfile in zip(features, imref[:256]):
                 image_name = (str(imfile)
@@ -117,9 +130,9 @@ def encode_faces(din, dout, ext=".jpg", tta=True):
             if len(arr_flip):
                 if tta:
                     emb_batch = model(arr_ccrop).cpu() + model(arr_flip).cpu()
-                    features = l2_norm(emb_batch)
+                    features = l2_norm(emb_batch).data.cpu().numpy()
                 else:
-                    features = l2_norm(model(arr_ccrop)).cpu()
+                    features = l2_norm(model(arr_ccrop)).data.cpu().numpy()
 
                 for feature, imfile in zip(features, imref):
                     image_name = (str(imfile)
@@ -150,14 +163,16 @@ if __name__ == "__main__":
         "-source_root",
         "--source_root",
         help="specify your source dir",
-        default="../../data/fiw-videos/FIDs-MM/",
+        default="/home/jrobby/video-frame-faces/",
+        # default="../../data/fiw-videos/FIDs-MM/",
         type=str,
     )
     parser.add_argument(
         "-dest_root",
         "--dest_root",
         help="specify your destination dir",
-        default="../../data/fiw-videos/FIDs-MM/",
+        default="/home/jrobby/video-frame-faces/",
+        # default="../../data/fiw-videos/FIDs-MM/",
         type=str,
     )
     parser.add_argument(
@@ -191,8 +206,8 @@ if __name__ == "__main__":
     # os.system("find . -name '*.DS_Store' -type f -delete")
     # os.chdir(cwd)
 
-    dir_videos = glob.glob(f"{source_root}F????/v?????/")
-    dir_videos = glob.glob(f"{source_root}F????/v?????/")
+    # dir_videos = glob.glob(f"{source_root}F????/v?????/")
+    dir_videos = glob.glob(f"{source_root}F????/MID*/*")
 
     model = IR_152(imsize)
     # load backbone from a checkpoint
@@ -207,18 +222,18 @@ if __name__ == "__main__":
 
     # extract features
     model.eval()  # set to evaluation mode
-    imref = []
-    arr_ccrop, arr_flip = None, None
+
     # for subfolder in tqdm(os.listdir(source_root)):
     for subfolder in tqdm(reversed(dir_videos)):
         # try:
-        path_out = Path(subfolder).joinpath("scenes").joinpath("encodings")
-        path_in = Path(subfolder).joinpath("scenes").joinpath("cropped")
+        # path_out = Path(subfolder).joinpath("scenes").joinpath("encodings")
+        # path_in = Path(subfolder).joinpath("scenes").joinpath("cropped")
+        subfolder = Path(subfolder)
+        encodings = encode_faces(subfolder, subfolder)
+        pd.to_pickle(encodings, subfolder.joinpath("encodings-new.pkl"))
 
-        encodings = encode_faces(path_in, path_out)
-        pd.to_pickle(encodings,
-                     str(Path(subfolder)
-                         .joinpath("scenes")
-                         .joinpath("encodings")
-                         .joinpath("encodings-new.pkl")),
-                     )
+        # str(Path(subfolder)
+        #     .joinpath("scenes")
+        #     .joinpath("encodings")
+        #     .joinpath("encodings-new.pkl")),
+        # )
