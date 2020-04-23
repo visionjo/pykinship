@@ -13,12 +13,11 @@ The output directory will contain a subdirectory for each split. Inside
 each subdirectory, there will be a probe.json, gallery.json, and true_relatives.json.
 """
 
-
 import json
 import random
 from itertools import chain
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List
 
 import pandas as pd
 from docopt import docopt
@@ -37,9 +36,9 @@ def choose_probes(fiw_mm: Path) -> Dict[str, Path]:
     -----------
     A dictionary mapping FIDs to the probe for that FID.
     """
-    probes = {} 
-    for fid in fiw_mm.glob('F????'):
-        mids = list(fid.glob('MID*'))
+    probes = {}
+    for fid in fiw_mm.glob("F????"):
+        mids = list(fid.glob("MID*"))
         if not mids:
             print(f"{fid.name} has no MIDs. Is this a mistake? Skipping.")
             continue
@@ -48,7 +47,10 @@ def choose_probes(fiw_mm: Path) -> Dict[str, Path]:
 
     return probes
 
-def make_galleries(probes: Dict[str, Path], fid_splits: pd.DataFrame, fiw_mm: Path) -> Dict[str, List[Path]]:
+
+def make_galleries(
+    probes: Dict[str, Path], fid_splits: pd.DataFrame, fiw_mm: Path
+) -> Dict[str, List[Path]]:
     """
     Create a gallery for each split. The gallery for each split consists
     of faces of individuals in the split who are not probes. The list is flat.
@@ -65,12 +67,11 @@ def make_galleries(probes: Dict[str, Path], fid_splits: pd.DataFrame, fiw_mm: Pa
 
     Returns
     ---------------
-    A dictionary whose keys are the split names, and whose values are a lists of Paths. 
+    A dictionary whose keys are the split names, and whose values are a lists of Paths.
     Each Path points to a face in the gallery.
     """
     split_names = fid_splits["set"].unique()
     galleries = {_: [] for _ in split_names}
-
 
     for split_name in split_names:
         families_in_split = fid_splits[fid_splits["set"].eq(split_name)]
@@ -84,7 +85,10 @@ def make_galleries(probes: Dict[str, Path], fid_splits: pd.DataFrame, fiw_mm: Pa
 
     return galleries
 
-def make_true_relatives(probes: Dict[str, Path], galleries: Dict[str, List[Path]]) -> Dict[str, List[int]]:
+
+def make_true_relatives(
+    probes: Dict[str, Path], galleries: Dict[str, List[Path]]
+) -> Dict[str, List[int]]:
     """
     Make a list of true relatives for each probe. Each true relative faces will be
     represented by its index in the gallery array.
@@ -109,7 +113,8 @@ def make_true_relatives(probes: Dict[str, Path], galleries: Dict[str, List[Path]
             fid = face.parent.parent.name
             true_relatives[fid].append(idx)
 
-    return true_relatives 
+    return true_relatives
+
 
 def partition_probes_and_true_rel_by_split(probes, true_relatives, fid_splits):
     """
@@ -135,7 +140,6 @@ def partition_probes_and_true_rel_by_split(probes, true_relatives, fid_splits):
     true_relatives_by_split:
         A dictionary with keys being splits, and the values being the split original true relatives
         dict. Exactly what happens to probes_by_split.
-    
     """
     split_names = fid_splits["set"].unique()
     probes_by_split = {}
@@ -144,7 +148,9 @@ def partition_probes_and_true_rel_by_split(probes, true_relatives, fid_splits):
     for split_name in split_names:
         fids_in_split = fid_splits[fid_splits["set"].eq(split_name)].FID.values
         probes_by_split[split_name] = {fid: probes[fid] for fid in fids_in_split}
-        true_relatives_by_split[split_name] = {fid: true_relatives[fid] for fid in fids_in_split}
+        true_relatives_by_split[split_name] = {
+            fid: true_relatives[fid] for fid in fids_in_split
+        }
 
     return probes_by_split, true_relatives_by_split
 
@@ -152,8 +158,11 @@ def partition_probes_and_true_rel_by_split(probes, true_relatives, fid_splits):
 def clean_paths(probes, galleries, fid_splits):
     split_names = fid_splits["set"].unique()
     for split_name in split_names:
-        probes[split_name] = {fid:_strip_absolute_path(mid, 2) for fid, mid in probes[split_name].items()}
+        probes[split_name] = {
+            fid: _strip_absolute_path(mid, 2) for fid, mid in probes[split_name].items()
+        }
         galleries[split_name] = [_strip_absolute_path(_) for _ in galleries[split_name]]
+
 
 def _strip_absolute_path(path, keep=3):
     return "/".join(path.parts[-keep:])
@@ -185,6 +194,8 @@ if __name__ == "__main__":
     probes = choose_probes(fiw_mm)
     galleries = make_galleries(probes, fid_splits, fiw_mm)
     true_relatives = make_true_relatives(probes, galleries)
-    probes, true_relatives = partition_probes_and_true_rel_by_split(probes, true_relatives, fid_splits)
+    probes, true_relatives = partition_probes_and_true_rel_by_split(
+        probes, true_relatives, fid_splits
+    )
     clean_paths(probes, galleries, fid_splits)
     save_to_disk(probes, galleries, true_relatives, output_dir, fid_splits)

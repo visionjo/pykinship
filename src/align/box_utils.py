@@ -2,7 +2,7 @@ import numpy as np
 from PIL import Image
 
 
-def nms(boxes, overlap_threshold = 0.5, mode = 'union'):
+def nms(boxes, overlap_threshold=0.5, mode="union"):
     """Non-maximum suppression.
 
     Arguments:
@@ -25,7 +25,7 @@ def nms(boxes, overlap_threshold = 0.5, mode = 'union'):
     # grab the coordinates of the bounding boxes
     x1, y1, x2, y2, score = [boxes[:, i] for i in range(5)]
 
-    area = (x2 - x1 + 1.0)*(y2 - y1 + 1.0)
+    area = (x2 - x1 + 1.0) * (y2 - y1 + 1.0)
     ids = np.argsort(score)  # in increasing order
 
     while len(ids) > 0:
@@ -53,16 +53,15 @@ def nms(boxes, overlap_threshold = 0.5, mode = 'union'):
 
         # intersections' areas
         inter = w * h
-        if mode == 'min':
-            overlap = inter/np.minimum(area[i], area[ids[:last]])
-        elif mode == 'union':
+        if mode == "min":
+            overlap = inter / np.minimum(area[i], area[ids[:last]])
+        elif mode == "union":
             # intersection over union (IoU)
-            overlap = inter/(area[i] + area[ids[:last]] - inter)
+            overlap = inter / (area[i] + area[ids[:last]] - inter)
 
         # delete all boxes where overlap is too big
         ids = np.delete(
-            ids,
-            np.concatenate([[last], np.where(overlap > overlap_threshold)[0]])
+            ids, np.concatenate([[last], np.where(overlap > overlap_threshold)[0]])
         )
 
     return pick
@@ -84,8 +83,8 @@ def convert_to_square(bboxes):
     h = y2 - y1 + 1.0
     w = x2 - x1 + 1.0
     max_side = np.maximum(h, w)
-    square_bboxes[:, 0] = x1 + w*0.5 - max_side*0.5
-    square_bboxes[:, 1] = y1 + h*0.5 - max_side*0.5
+    square_bboxes[:, 0] = x1 + w * 0.5 - max_side * 0.5
+    square_bboxes[:, 1] = y1 + h * 0.5 - max_side * 0.5
     square_bboxes[:, 2] = square_bboxes[:, 0] + max_side - 1.0
     square_bboxes[:, 3] = square_bboxes[:, 1] + max_side - 1.0
     return square_bboxes
@@ -119,12 +118,12 @@ def calibrate_box(bboxes, offsets):
     # are offsets always such that
     # x1 < x2 and y1 < y2 ?
 
-    translation = np.hstack([w, h, w, h])*offsets
+    translation = np.hstack([w, h, w, h]) * offsets
     bboxes[:, 0:4] = bboxes[:, 0:4] + translation
     return bboxes
 
 
-def get_image_boxes(bounding_boxes, img, size = 24):
+def get_image_boxes(bounding_boxes, img, size=24):
     """Cut out boxes from the image.
 
     Arguments:
@@ -139,20 +138,23 @@ def get_image_boxes(bounding_boxes, img, size = 24):
     num_boxes = len(bounding_boxes)
     width, height = img.size
 
-    [dy, edy, dx, edx, y, ey, x, ex, w, h] = correct_bboxes(bounding_boxes, width, height)
-    img_boxes = np.zeros((num_boxes, 3, size, size), 'float32')
+    [dy, edy, dx, edx, y, ey, x, ex, w, h] = correct_bboxes(
+        bounding_boxes, width, height
+    )
+    img_boxes = np.zeros((num_boxes, 3, size, size), "float32")
 
     for i in range(num_boxes):
-        img_box = np.zeros((h[i], w[i], 3), 'uint8')
+        img_box = np.zeros((h[i], w[i], 3), "uint8")
 
-        img_array = np.asarray(img, 'uint8')
-        img_box[dy[i]:(edy[i] + 1), dx[i]:(edx[i] + 1), :] =\
-            img_array[y[i]:(ey[i] + 1), x[i]:(ex[i] + 1), :]
+        img_array = np.asarray(img, "uint8")
+        img_box[dy[i] : (edy[i] + 1), dx[i] : (edx[i] + 1), :] = img_array[
+            y[i] : (ey[i] + 1), x[i] : (ex[i] + 1), :
+        ]
 
         # resize
         img_box = Image.fromarray(img_box)
         img_box = img_box.resize((size, size), Image.BILINEAR)
-        img_box = np.asarray(img_box, 'float32')
+        img_box = np.asarray(img_box, "float32")
 
         img_boxes[i, :, :, :] = _preprocess(img_box)
 
@@ -182,7 +184,7 @@ def correct_bboxes(bboxes, width, height):
     """
 
     x1, y1, x2, y2 = [bboxes[:, i] for i in range(4)]
-    w, h = x2 - x1 + 1.0,  y2 - y1 + 1.0
+    w, h = x2 - x1 + 1.0, y2 - y1 + 1.0
     num_boxes = bboxes.shape[0]
 
     # 'e' stands for end
@@ -218,7 +220,7 @@ def correct_bboxes(bboxes, width, height):
     y[ind] = 0.0
 
     return_list = [dy, edy, dx, edx, y, ey, x, ex, w, h]
-    return_list = [i.astype('int32') for i in return_list]
+    return_list = [i.astype("int32") for i in return_list]
 
     return return_list
 

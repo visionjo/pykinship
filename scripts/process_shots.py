@@ -1,5 +1,4 @@
 import glob
-import sys
 from pathlib import Path
 
 import cv2
@@ -9,8 +8,8 @@ import pandas as pd
 from PIL import Image
 from tqdm import tqdm
 
-sys.path.append('../')
-from src.data.videos import crop_detection
+# sys.path.append("../")
+from src.data.video import crop_detection
 
 
 def process_scenes(dir_in, dir_out):
@@ -18,13 +17,13 @@ def process_scenes(dir_in, dir_out):
     :param
     """
     Path(dir_out).mkdir(exist_ok=True)
-    imfiles = glob.glob(dir_in + '*.jpg')
+    imfiles = glob.glob(dir_in + "*.jpg")
     imfiles.sort()
     # imfiles = np.reshape(imfiles[:-1], (-1, 3))
     for i, imfile in enumerate(imfiles):
         # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
         # for face_id, imfile in enumerate(imstack):
-        suffix = imfile.split('.')[-2][-7:]
+        suffix = imfile.split(".")[-2][-7:]
         # if Path(dir_out).joinpath("s{}-{:02d}.png".format(suffix, 0)).is_file():
         #     continue
 
@@ -38,11 +37,11 @@ def process_scenes(dir_in, dir_out):
             imout = "s{}-{:02d}.png".format(suffix, j)
             print(imout)
             face_locations_dict = {
-                "frame": suffix.split('-')[1],
+                "frame": suffix.split("-")[1],
                 "face": j,
                 "bb": (left, top, right, bottom),
                 "landmarks": face_locations[j],
-                "path": imout
+                "path": imout,
             }
 
             face_image = crop_detection(Image.fromarray(rgb_frame), face_locations_dict)
@@ -52,23 +51,21 @@ def process_scenes(dir_in, dir_out):
             feature = feature[0]
 
             face_image.save(dir_out + imout)
-            pd.to_pickle(
-                feature, f"{dir_out}s{suffix}-{j}-encoding.pkl"
-            )
+            pd.to_pickle(feature, f"{dir_out}s{suffix}-{j}-encoding.pkl")
             pd.DataFrame().from_dict(face_locations_dict.items()).T.to_json(
                 f"{dir_out}s{suffix}-{j}-meta.json"
             )
 
 
-dir_data = '../data/fiw-videos/new-processed/'
-dirs_scenes = glob.glob(dir_data + '*/*/scenes/')
+dir_data = "../data/fiw-videos/new-processed/"
+dirs_scenes = glob.glob(dir_data + "*/*/scenes/")
 dirs_scenes.sort()
 
 # vids = [d.replace(dir_data, '').replace('/scenes/', '') for d in dirs_scenes]
 
 for dir_scene in tqdm(dirs_scenes):
-    dout = dir_scene + '/faces/'
-    din = dir_scene + '/images/'
+    dout = dir_scene + "/faces/"
+    din = dir_scene + "/images/"
     if Path(dout).exists():
         continue
     process_scenes(din, dout)

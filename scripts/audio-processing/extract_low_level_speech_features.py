@@ -30,8 +30,8 @@ for path_clips in tqdm.tqdm(dlist):
 
         fout = Path(
             path_wav.replace(str(path_data), str(path_out))
-                .replace("clips/", "")
-                .replace(".wav", ".npy")
+            .replace("clips/", "")
+            .replace(".wav", ".npy")
         )
         fout.parent.mkdir(parents=True, exist_ok=True)
         np.save(fout, fbank_feat)

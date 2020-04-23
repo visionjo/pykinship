@@ -97,8 +97,7 @@ mid_set = list(set([el[2] for el in gallery_list]))
 mid_set.sort()
 
 df_gallery = pd.DataFrame(mid_set, columns=["ref"])
-df_gallery["path"] = str(path_dir_features) + "/" + df_gallery[
-    "ref"] + "/encodings.pkl"
+df_gallery["path"] = str(path_dir_features) + "/" + df_gallery["ref"] + "/encodings.pkl"
 
 df_probes = pd.DataFrame(probe_lut, columns=["fid", "ref", "relatives"])
 
@@ -122,9 +121,10 @@ else:
             for feature in features[1].values():
                 nfeatures = len(feature)
                 try:
-                    arr[counter1:(counter1 + nfeatures)] = feature
+                    arr[counter1 : (counter1 + nfeatures)] = feature
                     counter1 += nfeatures
-                except:
+                except Exception as e:
+                    print(e.message)
                     pass
                 finally:
                     arr[-nfeatures:] = feature
@@ -134,7 +134,8 @@ for fid in tqdm(fids):
     # for each FID
     df_probe = df_probes.loc[df_probes.fid == fid]
 
-    path_features = (path_dir_features / df_probe['ref'].values[0]).joinpath(
-        'encodings.pkl')
+    path_features = (path_dir_features / df_probe["ref"].values[0]).joinpath(
+        "encodings.pkl"
+    )
     if path_features.is_file():
         f = pd.read_pickle(path_features)

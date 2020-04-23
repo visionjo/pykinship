@@ -1,5 +1,8 @@
 # import torch
 from pathlib import Path
+
+import numpy as np
+
 #
 # path_audio = Path('/Users/jrobby/GitHub/pykinship/data/fiw-mm/FIDs-MM/audio/wav/')
 # emb = torch.hub.load('pyannote/pyannote-audio', 'emb_ami')
@@ -11,34 +14,35 @@ from pathlib import Path
 import torch
 from tqdm import tqdm
 
-model = torch.hub.load('pyannote/pyannote-audio', 'emb_ami')
+model = torch.hub.load("pyannote/pyannote-audio", "emb_ami")
 
-print(f'Embedding has dimension {model.dimension:d}.')
+print(f"Embedding has dimension {model.dimension:d}.")
 # Embedding has dimension 512.
 
 # extract speaker embedding on the whole file using built-in sliding window
-import numpy as np
-from pyannote.core import Segment
 
-path_audio = Path('/Users/jrobby/GitHub/pykinship/data/fiw-mm/FIDs-MM/audio/wav/')
-path_out = Path('/Volumes/MyWorld/FIW-MM/features/audio/librosaMFCCami')
+
+path_audio = Path("/Users/jrobby/GitHub/pykinship/data/fiw-mm/FIDs-MM/audio/wav/")
+path_out = Path("/Volumes/MyWorld/FIW-MM/features/audio/librosaMFCCami")
 path_out.mkdir(exist_ok=True, parents=True)
-paths_all = list(path_audio.rglob('*.wav'))
+paths_all = list(path_audio.rglob("*.wav"))
 # emb_voxceleb
 for path in tqdm(paths_all):
-    fout = Path(str(path).replace(str(path_audio), str(path_out)).replace('.wav', '.npy'))
+    fout = Path(
+        str(path).replace(str(path_audio), str(path_out)).replace(".wav", ".npy")
+    )
     if fout.is_file():
         continue
     print(path)
-    embedding = model({'audio': str(path)})
+    embedding = model({"audio": str(path)})
 
     embedding = np.array([em[1] for em in embedding])
 
     fout.parent.mkdir(exist_ok=True, parents=True)
     # embeddings = emb(test_file)
     np.save(fout, embedding)
-alias
-sync_video = 'rsync -auvzP --exclude "*.mp4" --exclude "*.jpg" /Volumes/MyWorld/FIW-MM/features/video /Users/jrobby/Dropbox/FIW_Video/data/FIDs-MM-features/visual/'
+# alias
+# sync_video = 'rsync -auvzP --exclude "*.mp4" --exclude "*.jpg" /Volumes/MyWorld/FIW-MM/features/video /Users/jrobby/Dropbox/FIW_Video/data/FIDs-MM-features/visual/'
 
 # A  # for window, emb in embedding:
 #     assert isinstance(window, Segment)

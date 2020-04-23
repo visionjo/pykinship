@@ -8,7 +8,7 @@ REFERENCE_FACIAL_POINTS = [  # default reference facial points for crop_size = (
     [65.53179932, 51.50139999],
     [48.02519989, 71.73660278],
     [33.54930115, 92.3655014],
-    [62.72990036, 92.20410156]
+    [62.72990036, 92.20410156],
 ]
 
 DEFAULT_CROP_SIZE = (96, 112)
@@ -16,22 +16,23 @@ DEFAULT_CROP_SIZE = (96, 112)
 
 class FaceWarpException(Exception):
     def __str__(self):
-        return 'In File {}:{}'.format(
-            __file__, super.__str__(self))
+        return "In File {}:{}".format(__file__, super.__str__(self))
 
 
-def get_reference_facial_points(output_size=None,
-                                inner_padding_factor=0.0,
-                                outer_padding=(0, 0),
-                                default_square=False):
+def get_reference_facial_points(
+    output_size=None,
+    inner_padding_factor=0.0,
+    outer_padding=(0, 0),
+    default_square=False,
+):
     """
     Function:
     ----------
         get reference 5 key points according to crop settings:
         0. Set default crop_size:
-            if default_square: 
+            if default_square:
                 crop_size = (112, 112)
-            else: 
+            else:
                 crop_size = (96, 112)
         1. Pad the crop_size by inner_padding_factor in each side;
         2. Resize crop_size into (output_size - outer_padding*2),
@@ -51,7 +52,7 @@ def get_reference_facial_points(output_size=None,
             else:
                 default crop_size = (96, 112);
         !!! make sure, if output_size is not None:
-                (output_size - outer_padding) 
+                (output_size - outer_padding)
                 = some_scale * (default crop_size * (1.0 + inner_padding_factor))
     Returns:
     ----------
@@ -79,36 +80,41 @@ def get_reference_facial_points(output_size=None,
     # print('              crop_size = ', tmp_crop_size)
     # print('              reference_5pts = ', tmp_5pts)
 
-    if (output_size and
-            output_size[0] == tmp_crop_size[0] and
-            output_size[1] == tmp_crop_size[1]):
+    if (
+        output_size
+        and output_size[0] == tmp_crop_size[0]
+        and output_size[1] == tmp_crop_size[1]
+    ):
         # print('output_size == DEFAULT_CROP_SIZE {}: return default reference points'.format(tmp_crop_size))
         return tmp_5pts
 
-    if (inner_padding_factor == 0 and
-            outer_padding == (0, 0)):
+    if inner_padding_factor == 0 and outer_padding == (0, 0):
         if output_size is None:
             # print('No paddings to do: return default reference points')
             return tmp_5pts
         else:
             raise FaceWarpException(
-                'No paddings to do, output_size must be None or {}'.format(tmp_crop_size))
+                "No paddings to do, output_size must be None or {}".format(
+                    tmp_crop_size
+                )
+            )
 
     # check output size
     if not (0 <= inner_padding_factor <= 1.0):
-        raise FaceWarpException('Not (0 <= inner_padding_factor <= 1.0)')
+        raise FaceWarpException("Not (0 <= inner_padding_factor <= 1.0)")
 
-    if ((inner_padding_factor > 0 or outer_padding[0] > 0 or outer_padding[1] > 0)
-            and output_size is None):
-        output_size = tmp_crop_size * \
-                      (1 + inner_padding_factor * 2).astype(np.int32)
+    if (
+        inner_padding_factor > 0 or outer_padding[0] > 0 or outer_padding[1] > 0
+    ) and output_size is None:
+        output_size = tmp_crop_size * (1 + inner_padding_factor * 2).astype(np.int32)
         output_size += np.array(outer_padding)
         # print('              deduced from paddings, output_size = ', output_size)
 
-    if not (outer_padding[0] < output_size[0]
-            and outer_padding[1] < output_size[1]):
-        raise FaceWarpException('Not (outer_padding[0] < output_size[0]'
-                                'and outer_padding[1] < output_size[1])')
+    if not (outer_padding[0] < output_size[0] and outer_padding[1] < output_size[1]):
+        raise FaceWarpException(
+            "Not (outer_padding[0] < output_size[0]"
+            "and outer_padding[1] < output_size[1])"
+        )
 
     # 1) pad the inner region according inner_padding_factor
     # print('---> STEP1: pad the inner region according inner_padding_factor')
@@ -126,9 +132,14 @@ def get_reference_facial_points(output_size=None,
     # print('              crop_size = ', tmp_crop_size)
     # print('              size_bf_outer_pad = ', size_bf_outer_pad)
 
-    if size_bf_outer_pad[0] * tmp_crop_size[1] != size_bf_outer_pad[1] * tmp_crop_size[0]:
-        raise FaceWarpException('Must have (output_size - outer_padding)'
-                                '= some_scale * (crop_size * (1.0 + inner_padding_factor)')
+    if (
+        size_bf_outer_pad[0] * tmp_crop_size[1]
+        != size_bf_outer_pad[1] * tmp_crop_size[0]
+    ):
+        raise FaceWarpException(
+            "Must have (output_size - outer_padding)"
+            "= some_scale * (crop_size * (1.0 + inner_padding_factor)"
+        )
 
     scale_factor = size_bf_outer_pad[0].astype(np.float32) / tmp_crop_size[0]
     # print('              resize scale_factor = ', scale_factor)
@@ -185,24 +196,16 @@ def get_affine_transform_matrix(src_pts, dst_pts):
     #    #print(('np.linalg.lstsq return s: \n' + str(s))
 
     if rank == 3:
-        tfm = np.float32([
-            [A[0, 0], A[1, 0], A[2, 0]],
-            [A[0, 1], A[1, 1], A[2, 1]]
-        ])
+        tfm = np.float32([[A[0, 0], A[1, 0], A[2, 0]], [A[0, 1], A[1, 1], A[2, 1]]])
     elif rank == 2:
-        tfm = np.float32([
-            [A[0, 0], A[1, 0], 0],
-            [A[0, 1], A[1, 1], 0]
-        ])
+        tfm = np.float32([[A[0, 0], A[1, 0], 0], [A[0, 1], A[1, 1], 0]])
 
     return tfm
 
 
-def warp_and_crop_face(src_img,
-                       facial_pts,
-                       reference_pts=None,
-                       crop_size=(96, 112),
-                       align_type='smilarity'):
+def warp_and_crop_face(
+    src_img, facial_pts, reference_pts=None, crop_size=(96, 112), align_type="smilarity"
+):
     """
     Function:
     ----------
@@ -245,16 +248,14 @@ def warp_and_crop_face(src_img,
             outer_padding = (0, 0)
             output_size = crop_size
 
-            reference_pts = get_reference_facial_points(output_size,
-                                                        inner_padding_factor,
-                                                        outer_padding,
-                                                        default_square)
+            reference_pts = get_reference_facial_points(
+                output_size, inner_padding_factor, outer_padding, default_square
+            )
 
     ref_pts = np.float32(reference_pts)
     ref_pts_shp = ref_pts.shape
     if max(ref_pts_shp) < 3 or min(ref_pts_shp) != 2:
-        raise FaceWarpException(
-            'reference_pts.shape must be (K,2) or (2,K) and K>2')
+        raise FaceWarpException("reference_pts.shape must be (K,2) or (2,K) and K>2")
 
     if ref_pts_shp[0] == 2:
         ref_pts = ref_pts.T
@@ -262,8 +263,7 @@ def warp_and_crop_face(src_img,
     src_pts = np.float32(facial_pts)
     src_pts_shp = src_pts.shape
     if max(src_pts_shp) < 3 or min(src_pts_shp) != 2:
-        raise FaceWarpException(
-            'facial_pts.shape must be (K,2) or (2,K) and K>2')
+        raise FaceWarpException("facial_pts.shape must be (K,2) or (2,K) and K>2")
 
     if src_pts_shp[0] == 2:
         src_pts = src_pts.T
@@ -272,13 +272,12 @@ def warp_and_crop_face(src_img,
     #    #print('--->ref_pts\n', ref_pts
 
     if src_pts.shape != ref_pts.shape:
-        raise FaceWarpException(
-            'facial_pts and reference_pts must have the same shape')
+        raise FaceWarpException("facial_pts and reference_pts must have the same shape")
 
-    if align_type is 'cv2_affine':
+    if align_type == "cv2_affine":
         tfm = cv2.getAffineTransform(src_pts[0:3], ref_pts[0:3])
     #        #print(('cv2.getAffineTransform() returns tfm=\n' + str(tfm))
-    elif align_type is 'affine':
+    elif align_type == "affine":
         tfm = get_affine_transform_matrix(src_pts, ref_pts)
     #        #print(('get_affine_transform_matrix() returns tfm=\n' + str(tfm))
     else:

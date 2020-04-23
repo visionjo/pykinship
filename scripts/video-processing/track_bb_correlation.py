@@ -41,12 +41,16 @@ import numpy as np
 import cv2
 from PIL import Image
 
-mid_folder = Path('/Volumes/MyWorld/FIW-MM/data/interm/visual/video-frame-faces/F0005/MID3')
+mid_folder = Path(
+    "/Volumes/MyWorld/FIW-MM/data/interm/visual/video-frame-faces/F0005/MID3"
+)
 # Path to the video frames
-video_folder = mid_folder.joinpath('76dkmAvXHPE_0000001')
-vidoe_file = Path('/Volumes/MyWorld/FIW-MM/data/FIDs-MM/visual/video/F0005/MID3/76dkmAvXHPE_0000001.mp4')
+video_folder = mid_folder.joinpath("76dkmAvXHPE_0000001")
+vidoe_file = Path(
+    "/Volumes/MyWorld/FIW-MM/data/FIDs-MM/visual/video/F0005/MID3/76dkmAvXHPE_0000001.mp4"
+)
 
-f_faces = list(video_folder.glob('*.jpg'))
+f_faces = list(video_folder.glob("*.jpg"))
 f_faces.sort()
 # Create the correlation tracker - the object needs to be initialized
 # before it can be used
@@ -97,7 +101,7 @@ while True:
         # Start a track on the juice box. If you look at the first frame you
         # will see that the juice box is contained within the bounding
         # box (74, 67, 112, 153).
-        bb = np.loadtxt(str(f).replace('.jpg', '-bb.csv'), delimiter=',')
+        bb = np.loadtxt(str(f).replace(".jpg", "-bb.csv"), delimiter=",")
         bb_in = tuple([int(coord) for coord in bb[:-1]])
         rect = dlib.rectangle(*bb_in)
         tracker.start_track(rgb, rect)
@@ -113,7 +117,9 @@ while True:
     bl = bb_new.bl_corner()
     tr = bb_new.tr_corner()
     pil_frame.crop((bl.x, tr.y, tr.x, bl.y))
-    pil_frame.crop((int(bb_new.left), int(bb_new.top), int(bb_new.right), int(bb_new.bottom)))
+    pil_frame.crop(
+        (int(bb_new.left), int(bb_new.top), int(bb_new.right), int(bb_new.bottom))
+    )
     # if args["output"] is not None and writer is None:
     #     fourcc = cv2.VideoWriter_fourcc(*"MJPG")
     #     writer = cv2.VideoWriter(args["output"], fourcc, 30,
