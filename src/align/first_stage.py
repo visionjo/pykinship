@@ -27,7 +27,7 @@ def run_first_stage(image, net, scale, threshold):
     width, height = image.size
     sw, sh = math.ceil(width * scale), math.ceil(height * scale)
     img = image.resize((sw, sh), Image.BILINEAR)
-    img = np.asarray(img, 'float32')
+    img = np.asarray(img, "float32")
 
     img = Variable(torch.FloatTensor(_preprocess(img)), volatile=True)
     output = net(img)
@@ -85,13 +85,16 @@ def _generate_bboxes(probs, offsets, scale, threshold):
 
     # P-Net is applied to scaled images
     # so we need to rescale bounding boxes back
-    bounding_boxes = np.vstack([
-        np.round((stride * inds[1] + 1.0) / scale),
-        np.round((stride * inds[0] + 1.0) / scale),
-        np.round((stride * inds[1] + 1.0 + cell_size) / scale),
-        np.round((stride * inds[0] + 1.0 + cell_size) / scale),
-        score, offsets
-    ])
+    bounding_boxes = np.vstack(
+        [
+            np.round((stride * inds[1] + 1.0) / scale),
+            np.round((stride * inds[0] + 1.0) / scale),
+            np.round((stride * inds[1] + 1.0 + cell_size) / scale),
+            np.round((stride * inds[0] + 1.0 + cell_size) / scale),
+            score,
+            offsets,
+        ]
+    )
     # why one is added?
 
     return bounding_boxes.T

@@ -12,8 +12,8 @@ AUTHOR_EMAIL = "robinson.jo@northeastern.edu"
 LICENSE = "MIT License"
 URL = "https://github.com/visionjo/pykinship"
 DESCRIPTION = "Automatic kinship recognition"
-KEYWORDS = """ 
-        kinship faces recognition biometrics machinelearning deeplearning 
+KEYWORDS = """
+        kinship faces recognition biometrics machinelearning deeplearning
         computervision evaluation benchmark data imageset"""
 
 dir_root = path.abspath(path.dirname(__file__))
@@ -37,7 +37,7 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.7",
     "License :: OSI Approved :: {}".format(LICENSE),
 ]
-PLATFORMS = ["osx", 'linux']
+PLATFORMS = ["osx", "linux"]
 INSTALL_REQUIRES = []
 
 if __name__ == "__main__":
@@ -58,6 +58,3 @@ if __name__ == "__main__":
         keywords=KEYWORDS,
         install_requires=INSTALL_REQUIRES,
     )
-
-
-

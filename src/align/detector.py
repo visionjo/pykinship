@@ -7,12 +7,13 @@ from src.align.first_stage import run_first_stage
 
 
 def detect_faces(
-        image,
-        min_face_size=20.0,
-        thresholds=[0.6, 0.7, 0.8],
-        nms_thresholds=[0.7, 0.7, 0.7],
-        pnet=None, rnet=None, onet=None
-
+    image,
+    min_face_size=20.0,
+    thresholds=[0.6, 0.7, 0.8],
+    nms_thresholds=[0.7, 0.7, 0.7],
+    pnet=None,
+    rnet=None,
+    onet=None,
 ):
     """
     Arguments:
@@ -123,10 +124,10 @@ def detect_faces(
     height = bounding_boxes[:, 3] - bounding_boxes[:, 1] + 1.0
     xmin, ymin = bounding_boxes[:, 0], bounding_boxes[:, 1]
     landmarks[:, 0:5] = (
-            np.expand_dims(xmin, 1) + np.expand_dims(width, 1) * landmarks[:, 0:5]
+        np.expand_dims(xmin, 1) + np.expand_dims(width, 1) * landmarks[:, 0:5]
     )
     landmarks[:, 5:10] = (
-            np.expand_dims(ymin, 1) + np.expand_dims(height, 1) * landmarks[:, 5:10]
+        np.expand_dims(ymin, 1) + np.expand_dims(height, 1) * landmarks[:, 5:10]
     )
 
     bounding_boxes = calibrate_box(bounding_boxes, offsets)

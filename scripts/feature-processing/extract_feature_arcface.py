@@ -1,21 +1,21 @@
-import glob
-import os
-
 import argparse
+import glob
+from pathlib import Path
+
 import cv2
 import numpy as np
 import pandas as pd
-import sys
 import torch
-from pathlib import Path
 from tqdm import tqdm
 
-PACKAGE_PARENT = "../.."
-SCRIPT_DIR = os.path.dirname(
-    os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
-)
-print(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+from src.models.model_irse import IR_152
+
+# PACKAGE_PARENT = "../.."
+# SCRIPT_DIR = os.path.dirname(
+#     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
+# )
+# print(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+# sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 # PACKAGE_PARENT = "/home/jrobby/Documents/pykinship/src"
 # sys.path.append(PACKAGE_PARENT)
@@ -25,7 +25,6 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 # sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 # import src.tools.io
 
-from src.models.model_irse import IR_152
 
 # Helper function for extracting features from pre-trained models
 # Download model weights on google drive:
@@ -39,10 +38,9 @@ cuda, Tensor = (
     else (False, torch.FloatTensor)
 )
 
+
 # Tensor = torch.FloatCuTensor
 # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-arr_ccrop, arr_flip = None, None
 
 
 def encode_faces(din, dout, ext=".jpg", tta=True):
@@ -50,7 +48,8 @@ def encode_faces(din, dout, ext=".jpg", tta=True):
     # src.tools.io.mkdir(exist_ok=True)
     # except:
     #     continue
-
+    print(dout)
+    arr_ccrop, arr_flip = None, None
     for imfile in din.glob(f"*{ext}"):
         print("Processing\t{}".format(imfile))
 
@@ -104,18 +103,16 @@ def encode_faces(din, dout, ext=".jpg", tta=True):
         while len(arr_ccrop) > 256:
             if tta:
                 emb_batch = (
-                        model(arr_ccrop[:256, ...]).cpu()
-                        + model(arr_flip[:256, ...]).cpu()
+                    model(arr_ccrop[:256, ...]).cpu() + model(arr_flip[:256, ...]).cpu()
                 )
                 features = l2_norm(emb_batch).data.cpu().numpy()
             else:
                 features = l2_norm(model(arr_ccrop[:256, ...])).data.cpu().numpy()
 
             for feature, imfile in zip(features, imref[:256]):
-                image_name = (str(imfile)
-                              .replace("cropped", "encodings")
-                              .replace(".jpg", ".npy")
-                              )
+                image_name = (
+                    str(imfile).replace("cropped", "encodings").replace(".jpg", ".npy")
+                )
                 # if not Path(image_name).is_file():
                 # continue
                 np.save(image_name, feature)
@@ -135,10 +132,11 @@ def encode_faces(din, dout, ext=".jpg", tta=True):
                     features = l2_norm(model(arr_ccrop)).data.cpu().numpy()
 
                 for feature, imfile in zip(features, imref):
-                    image_name = (str(imfile)
-                                  .replace("cropped", "encodings")
-                                  .replace(".jpg", ".npy")
-                                  )
+                    image_name = (
+                        str(imfile)
+                        .replace("cropped", "encodings")
+                        .replace(".jpg", ".npy")
+                    )
                     # if not Path(image_name).is_file():
                     # continue
                     np.save(image_name, feature)
@@ -194,9 +192,7 @@ if __name__ == "__main__":
 
     source_root = args.source_root  # specify your source dir
     dest_root = args.dest_root  # specify your destination dir
-    imsize = (
-        args.crop_size
-    )
+    imsize = args.crop_size
     # model_root = "../model_ir_se50.pth"
     model_root = args.model_path
     print("Backbone Model Root:", model_root)

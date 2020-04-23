@@ -8,14 +8,18 @@ INFO = logging.INFO
 CRITICAL = logging.CRITICAL
 
 
-def init_logger(f_ref, f_log='fiw_error.log', str_ref='Parse FIW'):
+def init_logger(f_ref, f_log="fiw_error.log", str_ref="Parse FIW"):
     logger = setup_custom_logger(f_ref, f_log)
     logger.debug(str_ref)
     return logger
 
 
-def setup_custom_logger(name, f_log='fiw_error.log', level=logging.WARNING,
-                        log_fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s'):
+def setup_custom_logger(
+    name,
+    f_log="fiw_error.log",
+    level=logging.WARNING,
+    log_fmt="%(asctime)s - %(levelname)s - %(module)s - %(message)s",
+):
     formatter = logging.Formatter(fmt=log_fmt)
 
     handler = logging.FileHandler(f_log)

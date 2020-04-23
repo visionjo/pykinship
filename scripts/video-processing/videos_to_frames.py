@@ -10,6 +10,6 @@ path_out = Path(f"{data}/visual/video-frames")
 command = "ffmpeg -i {} -vf  fps=25  {}/frame-%03d.png"
 
 for f_clip in video.glob("F????/MID*/*.mp4"):
-    dout = Path(str(f_clip).replace(str(video), str(path_out))).with_suffix('')
+    dout = Path(str(f_clip).replace(str(video), str(path_out))).with_suffix("")
     dout.mkdir(parents=True, exist_ok=True)
     system(command.format(f_clip, dout))

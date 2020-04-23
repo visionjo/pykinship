@@ -91,7 +91,7 @@ if __name__ == "__main__":
         dout = Path(dest_root).joinpath(fid_mid)
         try:
             dout.mkdir()
-        except:
+        except Exception:
             continue
 
         arr_ccropped, arr_flipped = None, None
@@ -145,8 +145,8 @@ if __name__ == "__main__":
         with torch.no_grad():
             if tta:
                 emb_batch = (
-                        model(arr_ccropped.to(device)).cpu()
-                        + model(arr_flipped.to(device)).cpu()
+                    model(arr_ccropped.to(device)).cpu()
+                    + model(arr_flipped.to(device)).cpu()
                 )
                 encodings = l2_norm(emb_batch)
             else:
