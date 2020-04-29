@@ -1,7 +1,7 @@
 import argparse
 import glob
 import os
-import pickle
+import sys
 from pathlib import Path
 
 import cv2
@@ -11,15 +11,16 @@ from tqdm import tqdm
 
 from src.models.model_irse import IR_152
 
-# PACKAGE_PARENT = "../.."
-# SCRIPT_DIR = os.path.dirname(
-#     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
-# )
-#
-# sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+PACKAGE_PARENT = "../.."
+SCRIPT_DIR = os.path.dirname(
+    os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
+)
+
+sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+
 # # import src.tools.io
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # Helper function for extracting features from pre-trained models
 # Download model weights on google drive:
 # https://drive.google.com/file/d/1pA6iZYQ2i8BaVNn4ngXaKeIf6v50tk1m/view?usp=sharing
@@ -42,11 +43,14 @@ def encode_faces(din, dout, ext=".jpg", tta=True):
     imref = []
     arr_ccrop, arr_flip = None, None
     for imfile in din.glob(f"*{ext}"):
+        image_name = str(imfile).replace(".jpg", ".npy")
+        if Path(image_name).is_file():
+            continue
         print("Processing\t{}".format(imfile))
 
         # load image
         img = cv2.imread(str(imfile))
-        os.remove(imfile)
+        # os.remove(imfile)
         # resize image to [128, 128]
         resized = cv2.resize(img, (128, 128))
 
@@ -88,36 +92,41 @@ def encode_faces(din, dout, ext=".jpg", tta=True):
             arr_flip = torch.cat((flipped, arr_flip), 0)
             arr_flip = arr_flip.squeeze()
         imref.insert(0, imfile)
-    encodings = {}
-    # if len(imref):
-    #     src.tools.io.mkdir(exist_ok=True)
-    with torch.no_grad():
-        print(len(arr_ccrop))
-        while len(arr_ccrop) > 256:
-            if tta:
-                emb_batch = (
-                    model(arr_ccrop[:256, ...]).cpu() + model(arr_flip[:256, ...]).cpu()
-                )
-                features = l2_norm(emb_batch)
-            else:
-                features = l2_norm(model(arr_ccrop[:256, ...])).cpu()
+        # encodings = {}
+        # if len(imref):
+        #     src.tools.io.mkdir(exist_ok=True)
+        if len(imref) == 256:
+            with torch.no_grad():
+                print(len(arr_ccrop))
+                # while len(arr_ccrop) > 256:
+                if tta:
+                    # emb_batch = (
+                    #         model(arr_ccrop[:256, ...]).cpu() + model(arr_flip[:256, ...]).cpu()
+                    # )
+                    emb_batch = model(arr_ccrop).cpu() + model(arr_flip).cpu()
+                    features = l2_norm(emb_batch)
+                else:
+                    features = l2_norm(model(arr_ccrop)).cpu()
+                    # features = l2_norm(model(arr_ccrop[:256, ...])).cpu()
 
-            for feature, imfile in zip(features, imref[:256]):
-                image_name = str(imfile).replace(".jpg", ".npy")
-
-                # if not Path(image_name).is_file():
-                # continue
-                feature_arr = feature.data.cpu().numpy()
-                np.save(image_name, feature_arr)
+                for feature, imfile in zip(features, imref):
+                    # if not Path(image_name).is_file():
+                    # continue
+                    feature_arr = feature.data.cpu().numpy()
+                    np.save(image_name, feature_arr)
                 # features = np.load("features.npy")
 
-                ref = str(imfile).replace(source_root, "")
-                encodings[ref] = feature_arr
-            arr_ccrop = arr_ccrop[256:, ...]
-            arr_flip = arr_flip[256:, ...]
-            del imref[:256]
-        else:
-            if len(arr_flip):
+                # ref = str(imfile).replace(source_root, "")
+                # encodings[ref] = feature_arr
+                # arr_ccrop = arr_ccrop[256:, ...]
+                # arr_flip = arr_flip[256:, ...]
+                del imref, features, feature_arr, emb_batch
+                imref = []
+                arr_ccrop, arr_flip = None, None
+                # else:
+    try:
+        if len(arr_flip):
+            with torch.no_grad():
                 if tta:
                     emb_batch = model(arr_ccrop).cpu() + model(arr_flip).cpu()
                     features = l2_norm(emb_batch)
@@ -131,13 +140,16 @@ def encode_faces(din, dout, ext=".jpg", tta=True):
                     # continue
                     feature_arr = feature.data.cpu().numpy()
                     np.save(image_name, feature_arr)
+                    del feature_arr
                     # features = np.load("features.npy")
 
                     ref = str(imfile).replace(source_root, "")
                     print(ref)
-                    encodings[ref] = feature_arr
+                    # encodings[ref] = feature_arr
+    except Exception as e:
+        print("no remainder", e)
 
-    return encodings
+    return None
 
 
 def l2_norm(input, axis=1):
@@ -153,7 +165,7 @@ if __name__ == "__main__":
         "-source_root",
         "--source_root",
         help="specify your source dir",
-        default="/home/jrobby/video-frame-faces/",
+        default="/home/jrobby/clips-faces/",
         # default="/Users/jrobby/GitHub/pykinship/data/fiw-videos/FIDs-MM/",
         type=str,
     )
@@ -162,7 +174,7 @@ if __name__ == "__main__":
         "--dest_root",
         help="specify your destination dir",
         # default="/Users/jrobby/GitHub/pykinship/data/fiw-videos/FIDs-MM-features/",
-        default="/home/jrobby/video-frame-faces/",
+        default="/home/jrobby/clips-faces/",
         type=str,
     )
     parser.add_argument(
@@ -201,12 +213,12 @@ if __name__ == "__main__":
     # os.chdir(cwd)
 
     dir_videos = list(
-        set([Path(f).parent for f in glob.glob(f"{source_root}F0[1-9]??/MID*/*/*.jpg")])
+        set([Path(f).parent for f in glob.glob(f"{source_root}F????/v*/*/*.jpg")])
     )
     dir_videos.sort()
-    dir_videos = list(reversed(dir_videos))
+    # dir_videos = dir_videos[int(len(dir_videos) / 2):]
+    # dir_videos = list(reversed(dir_videos))
 
-    print(glob.glob(f"{source_root}F0[1-9]??/MID*/*"))
     model = IR_152(imsize)
     # load backbone from a checkpoint
     print("Loading Backbone Checkpoint '{}'".format(model_root))
@@ -230,9 +242,9 @@ if __name__ == "__main__":
         Path(path_out).mkdir(parents=True, exist_ok=True)
         path_in = Path(subfolder)
         # print(path_in, path_out)
-        if path_out.joinpath("encodings.pkl").is_file() and not overwrite:
-            continue
+        # if path_out.joinpath("encodings.pkl").is_file() and not overwrite:
+        #     continue
         encodings = encode_faces(path_in, path_out)
 
-        with open(str(path_out.joinpath("encodings.pkl")), "wb") as f:
-            pickle.dump(encodings, f)
+        # with open(str(path_out.joinpath("encodings.pkl")), "wb") as f:
+        #     pickle.dump(encodings, f)

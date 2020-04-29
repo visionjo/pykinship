@@ -1,53 +1,16 @@
 from pathlib import Path
-import cv2
 import pandas as pd
 import numpy as np
 from tqdm.auto import tqdm
 
 import argparse
 from sklearn.metrics.pairwise import cosine_similarity
-from collections import defaultdict
 from shutil import copyfile
-from sklearn import preprocessing
 
-
-def l2_norm(input, axis=1):
-    return preprocessing.normalize(input, norm="l2", axis=axis)
-
-
-def iou(bbox1, bbox2):
-    """
-    Calculates the intersection-over-union of two bounding boxes.
-    Args:
-        bbox1 (numpy.array, list of floats): bounding box in format x1,y1,x2,y2.
-        bbox2 (numpy.array, list of floats): bounding box in format x1,y1,x2,y2.
-    Returns:
-        int: intersection-over-onion of bbox1, bbox2
-    """
-
-    bbox1 = [float(x) for x in bbox1]
-    bbox2 = [float(x) for x in bbox2]
-
-    (x0_1, y0_1, x1_1, y1_1) = bbox1
-    (x0_2, y0_2, x1_2, y1_2) = bbox2
-
-    # get the overlap rectangle
-    overlap_x0 = max(x0_1, x0_2)
-    overlap_y0 = max(y0_1, y0_2)
-    overlap_x1 = min(x1_1, x1_2)
-    overlap_y1 = min(y1_1, y1_2)
-
-    # check if there is an overlap
-    if overlap_x1 - overlap_x0 <= 0 or overlap_y1 - overlap_y0 <= 0:
-        return 0
-
-    # if yes, calculate the ratio of the overlap to each ROI size and the unified size
-    size_1 = (x1_1 - x0_1) * (y1_1 - y0_1)
-    size_2 = (x1_2 - x0_2) * (y1_2 - y0_2)
-    size_intersection = (overlap_x1 - overlap_x0) * (overlap_y1 - overlap_y0)
-    size_union = size_1 + size_2 - size_intersection
-
-    return size_intersection / size_union
+from src.tools.features import l2_norm
+from src.tools.metrics import iou
+from glob import glob
+from warnings import warn
 
 
 def track_iou(detections, sigma_l, sigma_h, sigma_iou, t_min):
@@ -152,14 +115,14 @@ if __name__ == "__main__":
         "-d",
         "--detection_path",
         type=str,
-        default="../../data/fiw-mm/",
+        default="/Volumes/MyWorld/FIW-MM/clips-faces",
         help="full path to CSV file containing the detections",
     )
     parser.add_argument(
         "-o",
         "--output_path",
         type=str,
-        default="../../data/fiw-mm/interm/face-tracks",
+        default="/Volumes/MyWorld/FIW-MM/clips-tp-faces",
         help="output path to store the tracking results "
         "(MOT challenge/Visdrone devkit compatible format)",
     )
@@ -167,7 +130,7 @@ if __name__ == "__main__":
         "-s",
         "--save_path",
         type=str,
-        default="../../data/fiw-mm/FIDs-MM/visual/video",
+        default="/Volumes/MyWorld/FIW-MM/clips-tp-faces",
         help="output path to store the tracking results "
         "(MOT challenge/Visdrone devkit compatible format)",
     )
@@ -219,39 +182,62 @@ if __name__ == "__main__":
 
     path_data = Path(args.detection_path).resolve()
 
-    path_mids = path_data / "FIDs-MM/visual/image"
-    path_detections = path_data / "interm/visual/video-frame-faces/"
-    path_encodings = path_data / "features/image/arcface/"
+    # path_mids = path_data / "FIDs-MM/visual/image"
+    path_mids = path_data
+    path_detections = path_data  # / "interm/visual/video-frame-faces/"
+    path_encodings = (Path("../../data/fiw-mm") / "features/image/arcface/").resolve()
 
     path_out = Path(args.output_path).resolve()
     path_save = Path(args.save_path).resolve()
     path_out.mkdir(parents=True, exist_ok=True)
     last_fid_mid = None
-    f_datatable = path_detections.joinpath("datatable.pkl")
-    if f_datatable.is_file():
-        df_datatable = pd.read_pickle(f_datatable)
-    else:
-        mid_dirs = list(set([d.parent for d in path_detections.rglob("*.pkl")]))
-        fid_mids = [
-            (str(p).split("/")[-3], str(p).split("/")[-2], str(p).split("/")[-1])
-            for p in mid_dirs
-        ]
-        # path_detections = path_data / 'interm/visual/video-frame-faces/'
-        df_datatable = pd.DataFrame(fid_mids, columns=["fid", "mid", "vid"])
-        df_datatable["ref"] = df_datatable["fid"] + "." + df_datatable["mid"]
-        df_datatable.sort_values(by=["ref", "vid"], inplace=True)
-        pd.to_pickle(df_datatable, f_datatable)
+    # from os import walk
+
+    df_lut = pd.read_csv(
+        "/Users/jrobby/GitHub/pykinship/data/fiw-mm/lists/fiw-videos-master.csv"
+    )
+
+    vid_dirs = [p for p in path_detections.glob("F????/v*/v*")]
+
+    fid_vids = [
+        (str(p).split("/")[-3], str(p).split("/")[-2], str(p).split("/")[-1])
+        for p in vid_dirs
+    ]
+    # path_detections = path_data / 'interm/visual/video-frame-faces/'
+    df_datatable = pd.DataFrame(fid_vids, columns=["fid", "vid", "shot"])
+    df_lut["ref"] = df_lut["fid"] + "/MID" + df_lut["mid"].astype(str)
+    # df_datatable["ref"] = df_datatable["fid"] + "." + df_datatable["mid"]
+
+    df_datatable.index = df_datatable["vid"].values
+    # df_datatable.set_index('vid', inplace=True)
+    # df_lut.set_index('vid', inplace=True)
+    # df_lut = df_lut.loc[df_datatable.index]
+    df_datatable["ref"] = None
+    for i, vid in df_lut.iterrows():
+        df_datatable.loc[df_datatable.vid.astype(str) == vid["vid"], "ref"] = str(
+            vid["ref"]
+        )
+
+    df_datatable.sort_values(by=["ref", "vid"], inplace=True)
+
     umids = df_datatable["ref"].unique()
     umids.sort()
+    # umids = umids[:int(len(umids) / 2)]
     # umids = reversed(umids)
-    for mid in umids:
+    for xx, mid in enumerate(umids):
         # each video found in nested directories
-        dir_mid = path_encodings / mid.replace(".", "/")
+        # if xx < 40:
+        #     continue
+        dir_mid = path_encodings / mid
 
-        obin = path_out / mid.replace(".", "/")
-        obin.mkdir(parents=True, exist_ok=True)
-
-        savebin = path_save / mid.replace(".", "/")
+        # obin = path_out / mid
+        # obin.mkdir(parents=True, exist_ok=True)
+        if not dir_mid.joinpath("encodings.pkl").is_file():
+            with open("missing.txt", "a") as ff:
+                ff.writelines([(str(dir_mid.joinpath("encodings.pkl")) + "\n")])
+            warn(str(mid) + "missing pickle")
+            continue
+        savebin = path_save / mid
         savebin.mkdir(parents=True, exist_ok=True)
 
         encodings = pd.read_pickle(dir_mid.joinpath("encodings.pkl"))
@@ -261,101 +247,147 @@ if __name__ == "__main__":
 
         all_tracks = []
         for j in np.arange(nclips):
+            try:
+                detection_path = (
+                    path_detections
+                    / df_cur.iloc[j]["fid"]
+                    / df_cur.iloc[j]["vid"]
+                    / df_cur.iloc[j]["shot"]
+                )
+                obin = path_out / mid / df_cur.iloc[j]["vid"] / df_cur.iloc[j]["shot"]
+                obin.mkdir(parents=True, exist_ok=True)
 
-            detection_path = (
-                path_detections
-                / df_cur.iloc[j]["ref"].replace(".", "/")
-                / df_cur.iloc[j]["vid"]
-            )
-            f_tracks = obin.joinpath(detection_path.name + "-tracks").with_suffix(
-                ".pkl"
-            )
-            if f_tracks.is_file():
-                print("skipping", f_tracks)
-                continue
-            paths_faces = list(detection_path.glob("*.jpg"))
-            paths_encodings = [
-                str(p.with_suffix("")) + ".npy"
-                for p in paths_faces
-                if Path(str(p.with_suffix("")) + ".npy").is_file()
-            ]
-            paths_bb = [
-                str(p.with_suffix("")) + "-bb.csv"
-                for p in paths_faces
-                if Path(str(p.with_suffix("")) + ".npy").is_file()
-            ]
-            frame_id = [int(str(Path(p).name).split("-")[1]) for p in paths_bb]
-            bbs = [np.loadtxt(p, delimiter=",", dtype=float) for p in paths_bb]
+                f_tracks = obin.joinpath(detection_path.name + "-tracks").with_suffix(
+                    ".pkl"
+                )
+                if f_tracks.is_file():
+                    print("skipping", str(f_tracks), str(f_tracks.stat()))
+                    continue
+                paths_encodings = list(detection_path.glob("*.npy"))
 
-            frame_ids = np.unique(frame_id)
-            frame_id.sort()
-
-            df_detections = pd.DataFrame(
-                (
-                    (fid, bb[:-1], bb[-1], p)
-                    for fid, bb, p in zip(frame_id, bbs, paths_encodings)
-                ),
-                columns=["fid", "bbox", "score", "path"],
-            )
-            max_scores = df_detections[["fid", "score"]].groupby("fid").max()["score"]
-            max_scores = max_scores.reset_index()
-            max_scores.columns = [max_scores.columns[0], "max_score"]
-            df_detections = df_detections.merge(max_scores)
-            df_detections["ttl"] = args.ttl
-            df_detections["visual_tracker"] = None
-            df_detections["ids"] = np.arange(len(df_detections))
-            detections = {}
-            # df_cur.fid = df_cur.fid.astype(int)
-            all_detections = []
-            for fid in df_detections.fid.unique():
-                df = df_detections.loc[df_detections.fid == fid]
-                detections = df.to_dict()
-
-                detections["bbox"] = [v for v in detections["bbox"].values()]
-                detections["path"] = [v for v in detections["path"].values()]
-                detections["score"] = [v for v in detections["score"].values()]
-                detections["ttl"] = [v for v in detections["ttl"].values()]
-                detections["visual_tracker"] = [
-                    v for v in detections["visual_tracker"].values()
+                if len(glob(str(detection_path) + "/*.npy")) == 0:
+                    warn(detection_path, "no features")
+                    continue
+                paths_faces = [
+                    str(p.with_suffix("")) + ".jpg"
+                    for p in paths_encodings
+                    if Path(str(p.with_suffix("")) + ".jpg").is_file()
                 ]
-                detections["fid"] = [v for v in detections["fid"].values()]
-                detections["max_score"] = [v for v in detections["max_score"].values()]
-                dprocessed = [
-                    dict(zip(detections, t)) for t in zip(*detections.values())
+                paths_bb = [
+                    str(p.with_suffix("")) + "-bb.csv"
+                    for p in paths_encodings
+                    if Path(str(p.with_suffix("")) + ".npy").is_file()
                 ]
-                all_detections.append(dprocessed)
-            tracks = track_iou(
-                all_detections, args.sigma_l, args.sigma_h, args.sigma_iou, args.t_min
-            )
+                frame_id = [int(str(Path(p).name).split("-")[1]) for p in paths_bb]
+                bbs = [np.loadtxt(p, delimiter=",", dtype=float) for p in paths_bb]
 
-            scores = []
-            ave_encodings = []
-            for track in tracks:
-                # compare each track to mid
-                t_paths = track["path"]
-                en = [np.load(f) for f in t_paths]
-                en = np.array(en)
-                en_pooled = np.mean(en, axis=1)
-                en_pooled = en_pooled[..., np.newaxis].T
-                ave_encodings.append(en_pooled)
-                cscores = cosine_similarity(arr_encodings, en)
-                score = np.mean(cscores)
-                scores.append(score)
+                frame_ids = np.unique(frame_id)
+                frame_id.sort()
 
-            pd.to_pickle(tracks, f_tracks)
+                df_detections = pd.DataFrame(
+                    (
+                        (fid, bb[:-1], bb[-1], p)
+                        for fid, bb, p in zip(frame_id, bbs, paths_encodings)
+                    ),
+                    columns=["fid", "bbox", "score", "path"],
+                )
+                max_scores = (
+                    df_detections[["fid", "score"]].groupby("fid").max()["score"]
+                )
+                max_scores = max_scores.reset_index()
+                max_scores.columns = [max_scores.columns[0], "max_score"]
+                df_detections = df_detections.merge(max_scores)
+                df_detections["ttl"] = args.ttl
+                df_detections["visual_tracker"] = None
+                df_detections["ids"] = np.arange(len(df_detections))
+                detections = {}
+                # df_cur.fid = df_cur.fid.astype(int)
+                all_detections = []
+                for fid in df_detections.fid.unique():
+                    df = df_detections.loc[df_detections.fid == fid]
+                    detections = df.to_dict()
 
-            idmax = np.argmax(scores)
-            top_score = scores[idmax]
-            if top_score > 0.4:
-                track = tracks[idmax]
-                mean_encoding = l2_norm(ave_encodings[idmax])
-                dout = savebin.joinpath(detection_path.name)
-                dout.mkdir(exist_ok=True, parents=True)
-                fout = dout.joinpath("encoding").with_suffix(".npy")
-                np.save(fout, mean_encoding)
-                impaths = [f.replace(".npy", ".jpg") for f in track["path"]]
-                _ = [
-                    copyfile(impath, dout.joinpath(impath.split("/")[-1]))
-                    for impath in impaths
-                ]
+                    detections["bbox"] = [v for v in detections["bbox"].values()]
+                    detections["path"] = [v for v in detections["path"].values()]
+                    detections["score"] = [v for v in detections["score"].values()]
+                    detections["ttl"] = [v for v in detections["ttl"].values()]
+                    detections["visual_tracker"] = [
+                        v for v in detections["visual_tracker"].values()
+                    ]
+                    detections["fid"] = [v for v in detections["fid"].values()]
+                    detections["max_score"] = [
+                        v for v in detections["max_score"].values()
+                    ]
+                    dprocessed = [
+                        dict(zip(detections, t)) for t in zip(*detections.values())
+                    ]
+                    all_detections.append(dprocessed)
+                tracks = track_iou(
+                    all_detections,
+                    args.sigma_l,
+                    args.sigma_h,
+                    args.sigma_iou,
+                    args.t_min,
+                )
+
+                scores = []
+                ave_encodings = []
+                for track in tracks:
+                    # compare each track to mid
+                    t_paths = track["path"]
+                    en = [np.load(f) for f in t_paths]
+                    en = np.array(en)
+                    en_pooled = np.mean(en, axis=1)
+                    en_pooled = en_pooled[..., np.newaxis].T
+                    ave_encodings.append(en_pooled)
+                    cscores = cosine_similarity(arr_encodings, en)
+                    score = np.mean(cscores)
+                    scores.append(score)
+
+                pd.to_pickle(tracks, f_tracks)
+
+                idmax = np.argmax(scores)
+                top_score = scores[idmax]
+                if top_score > 0.32:
+                    track = tracks[idmax]
+                    mean_encoding = l2_norm(ave_encodings[idmax])
+                    dout = obin.joinpath(detection_path.name)
+                    dout.mkdir(exist_ok=True, parents=True)
+                    fout = dout.joinpath("encoding").with_suffix(".npy")
+                    np.save(fout, mean_encoding)
+                    impaths = [
+                        str(f).replace(".npy", ".jpg")
+                        for f in track["path"]
+                        if Path(str(f).replace(".npy", ".jpg")).is_file()
+                    ]
+                    _ = [
+                        copyfile(impath, dout.joinpath(impath.split("/")[-1]))
+                        for impath in impaths
+                    ]
+                    _ = [
+                        copyfile(str(impath), dout.joinpath(str(impath).split("/")[-1]))
+                        for impath in track["path"]
+                    ]
+                    bbpaths = [
+                        str(f).replace(".npy", "-bb.csv")
+                        for f in track["path"]
+                        if Path(str(f).replace(".npy", "-bb.csv")).is_file()
+                    ]
+                    _ = [
+                        copyfile(str(bbpath), dout.joinpath(str(bbpath).split("/")[-1]))
+                        for bbpath in bbpaths
+                    ]
+            except Exception:
+                with open("error.txt", "a") as ff:
+                    ff.writelines([(str(detection_path) + "\n")])
+                warn("ERROR")
             # all_tracks.append(tracks)
+# 0009/MID1/v00010/v00010-001/v00010-001-tracks.pkl
+# F0008/MID1/v00001/v00001-022/v00001-022-
+# es/F0009/MID2/v00006/v00006-009/v00006-009-track
+# s.pkl
+# -faces/F0009/MID3/v00008/v00008-002/v00008-002-tracks.pkl
+# MID6/v00005/v00005/v00005-tracks.pkl
+# 009/MID7/v00004/v00004-064/v00004-064-tracks.pkl
+# s/F0012/MID1/v00014/v00014-042/v00014-042-tracks.pkl o
+# /F0012/MID1/v00015/v00015-003/v00015-003-tracks.pkl os.s

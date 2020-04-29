@@ -86,10 +86,10 @@ def detect_faces(
     # STAGE 2
 
     img_boxes = get_image_boxes(bounding_boxes, image, size=24)
-    img_boxes = Variable(torch.FloatTensor(img_boxes), volatile=True)
+    img_boxes = Variable(torch.cuda.FloatTensor(img_boxes), volatile=True)
     output = rnet(img_boxes)
-    offsets = output[0].data.numpy()  # shape [n_boxes, 4]
-    probs = output[1].data.numpy()  # shape [n_boxes, 2]
+    offsets = output[0].data.cpu().numpy()  # shape [n_boxes, 4]
+    probs = output[1].data.cpu().numpy()  # shape [n_boxes, 2]
 
     keep = np.where(probs[:, 1] > thresholds[1])[0]
     bounding_boxes = bounding_boxes[keep]
@@ -107,11 +107,11 @@ def detect_faces(
     img_boxes = get_image_boxes(bounding_boxes, image, size=48)
     if len(img_boxes) == 0:
         return [], []
-    img_boxes = Variable(torch.FloatTensor(img_boxes), volatile=True)
+    img_boxes = Variable(torch.cuda.FloatTensor(img_boxes), volatile=True)
     output = onet(img_boxes)
-    landmarks = output[0].data.numpy()  # shape [n_boxes, 10]
-    offsets = output[1].data.numpy()  # shape [n_boxes, 4]
-    probs = output[2].data.numpy()  # shape [n_boxes, 2]
+    landmarks = output[0].data.cpu().numpy()  # shape [n_boxes, 10]
+    offsets = output[1].data.cpu().numpy()  # shape [n_boxes, 4]
+    probs = output[2].data.cpu().numpy()  # shape [n_boxes, 2]
 
     keep = np.where(probs[:, 1] > thresholds[2])[0]
     bounding_boxes = bounding_boxes[keep]

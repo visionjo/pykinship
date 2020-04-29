@@ -12,17 +12,10 @@ from pathlib import Path
 from tqdm import tqdm
 
 from src.models.model_irse import IR_152
+from src.tools.mytorch import l2_norm
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 tta = True
-
-
-def l2_norm(input, axis=1):
-    norm = torch.norm(input, 2, axis, True)
-    output = torch.div(input, norm)
-
-    return output
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="face alignment")
