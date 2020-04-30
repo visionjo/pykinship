@@ -222,8 +222,8 @@ if __name__ == "__main__":
 
     umids = df_datatable["ref"].unique()
     umids.sort()
-    # umids = umids[:int(len(umids) / 2)]
-    # umids = reversed(umids)
+    umids = umids[: int(len(umids) / 2)]
+    umids = reversed(umids)
     for xx, mid in enumerate(umids):
         # each video found in nested directories
         # if xx < 40:
@@ -263,6 +263,7 @@ if __name__ == "__main__":
                 if f_tracks.is_file():
                     print("skipping", str(f_tracks), str(f_tracks.stat()))
                     continue
+
                 paths_encodings = list(detection_path.glob("*.npy"))
 
                 if len(glob(str(detection_path) + "/*.npy")) == 0:
@@ -273,11 +274,7 @@ if __name__ == "__main__":
                     for p in paths_encodings
                     if Path(str(p.with_suffix("")) + ".jpg").is_file()
                 ]
-                paths_bb = [
-                    str(p.with_suffix("")) + "-bb.csv"
-                    for p in paths_encodings
-                    if Path(str(p.with_suffix("")) + ".npy").is_file()
-                ]
+                paths_bb = [str(p.with_suffix("")) + "-bb.csv" for p in paths_encodings]
                 frame_id = [int(str(Path(p).name).split("-")[1]) for p in paths_bb]
                 bbs = [np.loadtxt(p, delimiter=",", dtype=float) for p in paths_bb]
 
@@ -377,6 +374,7 @@ if __name__ == "__main__":
                         copyfile(str(bbpath), dout.joinpath(str(bbpath).split("/")[-1]))
                         for bbpath in bbpaths
                     ]
+                break
             except Exception:
                 with open("error.txt", "a") as ff:
                     ff.writelines([(str(detection_path) + "\n")])
