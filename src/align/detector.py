@@ -6,6 +6,7 @@ from src.align.box_utils import nms, calibrate_box, get_image_boxes, convert_to_
 from src.align.first_stage import run_first_stage
 
 
+# TODO - optimize for batch processing on GPU
 def detect_faces(
     image,
     min_face_size=20.0,
@@ -86,7 +87,7 @@ def detect_faces(
     # STAGE 2
 
     img_boxes = get_image_boxes(bounding_boxes, image, size=24)
-    img_boxes = Variable(torch.cuda.FloatTensor(img_boxes), volatile=True)
+    img_boxes = Variable(torch.FloatTensor(img_boxes), volatile=True)
     output = rnet(img_boxes)
     offsets = output[0].data.cpu().numpy()  # shape [n_boxes, 4]
     probs = output[1].data.cpu().numpy()  # shape [n_boxes, 2]
@@ -107,7 +108,7 @@ def detect_faces(
     img_boxes = get_image_boxes(bounding_boxes, image, size=48)
     if len(img_boxes) == 0:
         return [], []
-    img_boxes = Variable(torch.cuda.FloatTensor(img_boxes), volatile=True)
+    img_boxes = Variable(torch.FloatTensor(img_boxes), volatile=True)
     output = onet(img_boxes)
     landmarks = output[0].data.cpu().numpy()  # shape [n_boxes, 10]
     offsets = output[1].data.cpu().numpy()  # shape [n_boxes, 4]

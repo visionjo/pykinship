@@ -29,7 +29,7 @@ def run_first_stage(image, net, scale, threshold):
     img = image.resize((sw, sh), Image.BILINEAR)
     img = np.asarray(img, "float32")
 
-    img = Variable(torch.cuda.FloatTensor(_preprocess(img)), volatile=True)
+    img = Variable(torch.FloatTensor(_preprocess(img)), volatile=True)
     output = net(img)
     probs = output[1].data.cpu().numpy()[0, 1, :, :]
     offsets = output[0].data.cpu().numpy()
