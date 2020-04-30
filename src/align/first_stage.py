@@ -31,8 +31,8 @@ def run_first_stage(image, net, scale, threshold):
 
     img = Variable(torch.FloatTensor(_preprocess(img)), volatile=True)
     output = net(img)
-    probs = output[1].data.numpy()[0, 1, :, :]
-    offsets = output[0].data.numpy()
+    probs = output[1].data.cpu().numpy()[0, 1, :, :]
+    offsets = output[0].data.cpu().numpy()
     # probs: probability of a face at each sliding window
     # offsets: transformations to true bounding boxes
 

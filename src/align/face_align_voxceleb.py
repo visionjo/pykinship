@@ -19,14 +19,16 @@ if __name__ == "__main__":
         "-source_root",
         "--source_root",
         help="specify your source dir",
-        default="../../data/fiw-mm/",
+        # default="../../data/fiw-mm/",
+        default="/home/jrobby/clips/",
         type=str,
     )
     parser.add_argument(
         "-dest_root",
         "--dest_root",
         help="specify your destination dir",
-        default="../../data/fiw-mm/features/visual/video/",
+        # default="../../data/fiw-mm/features/visual/video/",
+        default="/home/jrobby/clips-features/",
         type=str,
     )
     parser.add_argument(

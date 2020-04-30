@@ -1,9 +1,12 @@
+import logging
 import os
 import string
-from pathlib import Path
 import warnings as warn
+from pathlib import Path
+
 import numpy as np
 import scipy.io as scio
+import scipy.io as sio
 
 from src.tools import common
 from src.tools import io
@@ -262,6 +265,42 @@ def check_paths(*paths):
             do_exist = False
 
     return do_exist
+
+
+def save_ndarray(file_path, ndarray, fmode="txt"):
+    try:
+
+        if not os.path.exists(os.path.dirname(file_path)):
+            os.makedirs(os.path.dirname(file_path))
+
+        if fmode == "numpy":
+            np.save(file_path, ndarray)
+            return True
+        elif fmode == "txt":
+            np.savetxt(file_path, ndarray)
+            return True
+        else:
+            raise NotImplementedError
+    except Exception as e:
+        logging.warning(e)
+        return False
+
+
+def load_ndarray(file_path, fmode="txt"):
+    try:
+        if fmode == "numpy":
+            ndarray = np.load(file_path)
+        elif fmode == "txt":
+            ndarray = np.loadtxt(file_path)
+        elif fmode == "mat":
+            ndarray = sio.loadmat(file_path)
+        else:
+            raise NotImplementedError
+
+        return ndarray
+    except Exception as e:
+        logging.warning(e)
+        return False
 
 
 if __name__ == "__main__":
