@@ -1,5 +1,11 @@
+""""
+Detect faces in videos (set)
+
+Save JPG (cropped faces) and CSVs (BB and landmarks)
+
+TODO - optimize for batch processing and to run using cuda
+"""
 import os
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -12,18 +18,14 @@ from src.align.align_trans import get_reference_facial_points, warp_and_crop_fac
 from src.align.detector import detect_faces
 from src.align.get_nets import PNet, ONet, RNet
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
-PACKAGE_PARENT = "../.."
-SCRIPT_DIR = os.path.dirname(
-    os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
-)
+# PACKAGE_PARENT = "../.."
+# SCRIPT_DIR = os.path.dirname(
+#     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
+# )
 # print(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 # sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
-#
-# from src.align.align_trans import get_reference_facial_points, warp_and_crop_face
-# from src.align.detector import detect_faces
-# from src.align.get_nets import PNet, ONet, RNet
 
 cuda, Tensor = (
     (True, torch.cuda.FloatTensor)
@@ -51,7 +53,7 @@ imsize = (112, 112)
 source_root = Path("/home/jrobby/clips/")
 dest_root = "/home/jrobby/clips-faces/"
 model_root = "../../models/Backbone_IR_152_checkpoint.pth"
-# path_data = Path(source_root).resolve()
+# path_data = Path(source_root).resolve()ß
 
 path_out = Path(dest_root).resolve()
 path_out.mkdir(exist_ok=True, parents=True)
@@ -62,17 +64,16 @@ reference = get_reference_facial_points(default_square=True) * scale
 dir_fids = list(source_root.glob("F????"))
 dir_fids.sort()
 dir_fids = list(reversed(dir_fids))
-# dir_fids = list(reversed(dir_fids[: int(len(dir_fids) / 2.2)]))
 
 pnet = PNet()
 rnet = RNet()
 onet = ONet()
 
-if cuda:
-    pnet.cuda()
-    rnet.cuda()
-    onet.cuda()
-# for f_video in tqdm(f_videos):
+# if cuda:
+#     pnet.cuda()
+#     rnet.cuda()
+#     onet.cuda()
+
 for dir_fid in tqdm(dir_fids):
 
     for f_video in dir_fid.rglob("*.mp4"):
@@ -81,6 +82,7 @@ for dir_fid in tqdm(dir_fids):
         path_obin = (path_out / ref_base).with_suffix("")
         try:
             path_obin.mkdir(parents=True)
+
         except Exception as e:
             print("skipping", f_video, e)
             continue
@@ -133,22 +135,6 @@ for dir_fid in tqdm(dir_fids):
                         )
                 except Exception as e:
                     print(e)
+            os.remove(str(f_video))
         except Exception:
             print("corrupted", f_video)
-# model = IR_152(imsize)
-# # load backbone from a checkpoint
-# print("Loading Backbone Checkpoint '{}'".format(model_root))
-# if torch.cuda.is_available():
-#     model.load_state_dict(torch.load(model_root))
-#     model.cuda()
-# else:
-#     model.load_state_dict(torch.load(model_root, map_location=torch.device("cpu")))
-#
-# path_out = Path(dest_root)
-# path_out.mkdir(exist_ok=True)
-#
-# dirs_fids = path_out.glob('F????/v?????')
-#
-# for dir_fid in dirs_fids:
-#     encodings = encode_faces(dir_fid, dir_fid)
-#     pd.to_pickle(encodings, dir_fid.joinpath('encodings.pkl'))
