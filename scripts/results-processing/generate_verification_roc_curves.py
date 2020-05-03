@@ -24,12 +24,7 @@ def load_actives(fname):
     return actives
 
 
-# def load_data(fname, ):
-#
-#     for f in dir_results.glob('*fusion*.csv'):
-#         print(f)
-#
-#
+# def load_scores(fname):
 #     sfile = open(fname, 'r')
 #     label = sfile.readline()
 #     label = label.strip()
@@ -41,26 +36,17 @@ def load_actives(fname):
 #
 #     return label, scores
 
-
 def load_dataframes(din, wildcard='*fusion*.csv'):
-    
-    data = {}
+    data = []
     for f in din.glob(wildcard):
         print(f)
-        ref = "-".join(f.with_name("").name.split('_')[-3:]).replace('-fusion', '')
+        ref = "-".join(f.with_suffix("").name.split('_')[-3:]).replace('-fusion',
+                                                                     '')
         print(ref)
-        data[ref] = pd.read_csv(f)
+        data.append((ref, pd.read_csv(f)))
 
-    sfile = open(fname, 'r')
-    label = sfile.readline()
-    label = label.strip()
+    return data
 
-    scores = []
-    for line in sfile.readlines():
-        id, score = line.strip().split()
-        scores.append((id, float(score)))
-
-    return label, scores
 
 
 def get_rates(actives, scores):
@@ -202,17 +188,18 @@ def filter_datatables(df, keep):
 
 if __name__ == "__main__":
     dir_results = Path(
-        "../../results/trisubject_evaluation/roc"
-    )
-    do_type = "FM-S"
-    path_out = Path(
-        "/Users/jrobby/Dropbox/FIW_Video/results/trisubject_evaluation/roc/roc-{}.pdf".format(
-            do_type
-        )
+        "../../results/verification_evaluation/"
     )
 
     df_list = load_dataframes(dir_results)
-    df_list = filter_datatables(df_list, do_type)
+
+    assert len(df_list)
+
+    rtypes = df_list[0][1].ptype.unique()
+    rtypes = rtypes.astype(str)
+    rtypes = rtypes[rtypes!='nan']
+
+
     results_summary = calculate_roc_points(df_list)
     # Define a result table as a DataFrame
 
