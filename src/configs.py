@@ -1,4 +1,5 @@
 from addict import Dict
+from pathlib import Path
 
 CONFIGS = None
 f_config = "logs/configs.json"
@@ -50,7 +51,6 @@ config.path.f_rid = f"{config.path.d_db}FIW_RIDs.csv"  # file path for relations
 config.path.f_fid = f"{config.path.d_db}FIW_FIDs.csv"  # file path FID LUT
 config.path.f_pid = f"{config.path.d_db}FIW_PIDs.csv"  # file path PID LUT
 
-
 config.path.fn_mid = "mid.csv"  # filename: file storing FID labels for each families
 config.path.fn_log = "fiwdb.log"  # filename: output log
 
@@ -58,5 +58,11 @@ config.path.outputs.cropped_faces = f"{config.path.db}faces-cropped-aligned/"
 config.path.outputs.sdm = f"{config.path.output}signal_detection_models.pdf"
 
 config.image.ext = ".jpg"
+
+PATH_ROOT = Path("../data/fiw-mm").resolve()
+PATH_DATA = Path(f"{PATH_ROOT}/FIDs-MM")
+PATH_IMAGE = Path(f"{PATH_DATA}/visual/image")
+PATH_VIDEO = Path(f"{PATH_DATA}/visual/video")
+PATH_OUT = Path(f"{PATH_DATA}/visual/video-frames")
 
 CONFIGS = Dict(config)

@@ -9,14 +9,13 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
-from src.models.model_irse import IR_152
-
 PACKAGE_PARENT = "../.."
 SCRIPT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
 )
 
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+from src.models.model_irse import IR_152
 
 # # import src.tools.io
 
@@ -165,7 +164,7 @@ if __name__ == "__main__":
         "-source_root",
         "--source_root",
         help="specify your source dir",
-        default="/home/jrobby/clips-faces/",
+        default="/home/jrobby/VIDs-aligned-faces/",
         # default="/Users/jrobby/GitHub/pykinship/data/fiw-videos/FIDs-MM/",
         type=str,
     )
@@ -174,7 +173,7 @@ if __name__ == "__main__":
         "--dest_root",
         help="specify your destination dir",
         # default="/Users/jrobby/GitHub/pykinship/data/fiw-videos/FIDs-MM-features/",
-        default="/home/jrobby/clips-faces/",
+        default="/home/jrobby/VIDs-aligned-faces-features/",
         type=str,
     )
     parser.add_argument(
@@ -213,7 +212,12 @@ if __name__ == "__main__":
     # os.chdir(cwd)
 
     dir_videos = list(
-        set([Path(f).parent for f in glob.glob(f"{source_root}F????/v*/*/*.jpg")])
+        set(
+            [
+                Path(f).parent
+                for f in glob.glob(f"{source_root}F????/MID*/v*/tra*/*.jpg")
+            ]
+        )
     )
     dir_videos.sort()
     # dir_videos = dir_videos[int(len(dir_videos) / 2):]

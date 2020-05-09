@@ -1,10 +1,76 @@
 """
 Metric functions
 """
+import numpy as np
+import torch
 from scipy.interpolate import interp1d
 from sklearn.metrics import accuracy_score, roc_curve
+from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import paired_distances
-import numpy as np
+
+
+#######################################################################
+# Evaluate
+def compute_cosine_similarities(feature_seta, feature_setb):
+    query = feature_seta.view(-1, 1)
+
+    x1 = feature_setb.cpu().numpy()
+    x2 = query.cpu().numpy().reshape(1, -1)
+    return cosine_similarity(x1, x2, dense_output=True)
+
+
+def make_prediction(scores):
+    # predict index
+    index = np.argsort(scores.squeeze(1))  # from small to large
+    return index[::-1]
+
+
+def evaluate(features_probe, labels_probes, features_gallery, labels_gallery):
+    """
+    Does end-to-end evaluation. Computes CMC
+    :param features_probe:
+    :param labels_probes:
+    :param features_gallery:
+    :param labels_gallery:
+    :return:    CMC value?
+    """
+    pass
+
+    scores = compute_cosine_similarities(features_probe, features_gallery)
+
+    ranked_list_predicted = make_prediction(scores)
+
+    list_true_relatives = np.argwhere(labels_gallery == labels_probes)
+
+    cmc_tmp = compute_mAP(ranked_list_predicted, list_true_relatives)
+
+    return scores, ranked_list_predicted, cmc_tmp
+
+
+def compute_mAP(predicted_indices, true_indices):
+    ap = 0
+    cmc = torch.IntTensor(len(predicted_indices)).zero_()
+    if not true_indices.size:  # if empty
+        cmc[0] = -1
+        return ap, cmc
+
+    # find good_index index
+    ngood = len(true_indices)
+    mask = np.in1d(predicted_indices, true_indices)
+    rows_good = np.argwhere(mask)
+    rows_good = rows_good.flatten()
+
+    cmc[rows_good[0] :] = 1
+    for i in range(ngood):
+        d_recall = 1.0 / ngood
+        precision = (i + 1) * 1.0 / (rows_good[i] + 1)
+        if rows_good[i] != 0:
+            old_precision = i * 1.0 / rows_good[i]
+        else:
+            old_precision = 1.0
+        ap = ap + d_recall * (old_precision + precision) / 2
+
+    return ap, cmc
 
 
 def iou(bbox1, bbox2):
@@ -328,3 +394,29 @@ def cal_interpolation(x, y, x_new):
         y_new = [f(x_new)]
 
     return y_new
+
+
+def calculate_tar_and_far_values(y_true, scores):
+    """
+    Get TAR (TPR) and FAR (FNR) across various thresholds (via roc_curve)
+    :param y_true:   ground truth label, boolean (1 if match; else, 0)
+    :param scores:   scores for each pair.
+    :return:    list of tuples (FAR, TAR, thresholds)
+    """
+    fpr, tar, thresholds = roc_curve(y_true, scores, pos_label=1)
+    far = 1 - tar
+    return far, tar, thresholds
+
+
+def calculate_det_curves(y_true, scores):
+    """
+    Calculate false match rates, both for non-matches and matches
+    :param y_true:   ground truth label, boolean (1 if match; else, 0)
+    :param scores:   scores for each pair.
+    :return:    list of tuples (false-match and false-non-match rates.
+    """
+
+    # y_pred = threshold_scores(scores, threshold)
+    fpr, tpr, thresholds = roc_curve(y_true, scores, pos_label=1)
+    fnr = 1 - tpr
+    return fpr, fnr, thresholds
