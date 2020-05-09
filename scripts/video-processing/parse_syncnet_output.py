@@ -25,7 +25,11 @@ for path_track in tqdm(path_tracks, total=len(path_tracks), unit="files"):
         continue
     f_source = path_vids / path_track.with_suffix(".mp4").name
     d_out = path_out / path_track.with_suffix("").name
-    d_out.mkdir(exist_ok=True)
+    try:
+        d_out.mkdir()
+    except Exception:
+        print("skipping", path_track)
+        continue
     for k, track in enumerate(tracks):
         print(f"{k}/{ntracks}")
         track = track["track"]

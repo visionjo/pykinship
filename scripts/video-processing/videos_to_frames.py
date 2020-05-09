@@ -1,15 +1,20 @@
-from pathlib import Path
+#!/usr/bin/env python
+"""
+Script to convert mp4 files (videos) to png (images)
+"""
+
 from os import system
+from pathlib import Path
 
-root = Path("../../data/fiw-mm")
-data = Path(f"{root}/FIDs-MM")
-image = Path(f"{data}/visual/image")
-video = Path(f"{data}/visual/video")
-path_out = Path(f"{data}/visual/video-frames")
+PATH_ROOT = Path("../../data/fiw-mm")
+PATH_DATA = Path(f"{PATH_ROOT}/FIDs-MM")
+PATH_IMAGE = Path(f"{PATH_DATA}/visual/image")
+PATH_VIDEO = Path(f"{PATH_DATA}/visual/video")
+PATH_OUT = Path(f"{PATH_DATA}/visual/video-frames")
 
-command = "ffmpeg -i {} -vf  fps=25  {}/frame-%03d.png"
+CMD = "ffmpeg -i {} -vf  fps=25  {}/frame-%03d.png"
 
-for f_clip in video.glob("F????/MID*/*.mp4"):
-    dout = Path(str(f_clip).replace(str(video), str(path_out))).with_suffix("")
+for f_clip in PATH_VIDEO.glob("F????/MID*/*.mp4"):
+    dout = Path(str(f_clip).replace(str(PATH_VIDEO), str(PATH_OUT))).with_suffix("")
     dout.mkdir(parents=True, exist_ok=True)
-    system(command.format(f_clip, dout))
+    system(CMD.format(f_clip, dout))
