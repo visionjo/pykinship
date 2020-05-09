@@ -1,7 +1,19 @@
 import torch
 import torch.nn as nn
-from torch.nn import Linear, Conv2d, BatchNorm1d, BatchNorm2d, PReLU, ReLU, Sigmoid, Dropout, MaxPool2d, \
-    AdaptiveAvgPool2d, Sequential, Module
+from torch.nn import (
+    Linear,
+    Conv2d,
+    BatchNorm1d,
+    BatchNorm2d,
+    PReLU,
+    ReLU,
+    Sigmoid,
+    Dropout,
+    MaxPool2d,
+    AdaptiveAvgPool2d,
+    Sequential,
+    Module,
+)
 from collections import namedtuple
 
 
@@ -25,13 +37,15 @@ class SEModule(Module):
         super(SEModule, self).__init__()
         self.avg_pool = AdaptiveAvgPool2d(1)
         self.fc1 = Conv2d(
-            channels, channels // reduction, kernel_size=1, padding=0, bias=False)
+            channels, channels // reduction, kernel_size=1, padding=0, bias=False
+        )
 
         nn.init.xavier_uniform_(self.fc1.weight.data)
 
         self.relu = ReLU(inplace=True)
         self.fc2 = Conv2d(
-            channels // reduction, channels, kernel_size=1, padding=0, bias=False)
+            channels // reduction, channels, kernel_size=1, padding=0, bias=False
+        )
 
         self.sigmoid = Sigmoid()
 
@@ -53,11 +67,16 @@ class bottleneck_IR(Module):
             self.shortcut_layer = MaxPool2d(1, stride)
         else:
             self.shortcut_layer = Sequential(
-                Conv2d(in_channel, depth, (1, 1), stride, bias=False), BatchNorm2d(depth))
+                Conv2d(in_channel, depth, (1, 1), stride, bias=False),
+                BatchNorm2d(depth),
+            )
         self.res_layer = Sequential(
             BatchNorm2d(in_channel),
-            Conv2d(in_channel, depth, (3, 3), (1, 1), 1, bias=False), PReLU(depth),
-            Conv2d(depth, depth, (3, 3), stride, 1, bias=False), BatchNorm2d(depth))
+            Conv2d(in_channel, depth, (3, 3), (1, 1), 1, bias=False),
+            PReLU(depth),
+            Conv2d(depth, depth, (3, 3), stride, 1, bias=False),
+            BatchNorm2d(depth),
+        )
 
     def forward(self, x):
         shortcut = self.shortcut_layer(x)
@@ -74,14 +93,15 @@ class bottleneck_IR_SE(Module):
         else:
             self.shortcut_layer = Sequential(
                 Conv2d(in_channel, depth, (1, 1), stride, bias=False),
-                BatchNorm2d(depth))
+                BatchNorm2d(depth),
+            )
         self.res_layer = Sequential(
             BatchNorm2d(in_channel),
             Conv2d(in_channel, depth, (3, 3), (1, 1), 1, bias=False),
             PReLU(depth),
             Conv2d(depth, depth, (3, 3), stride, 1, bias=False),
             BatchNorm2d(depth),
-            SEModule(depth, 16)
+            SEModule(depth, 16),
         )
 
     def forward(self, x):
@@ -91,13 +111,15 @@ class bottleneck_IR_SE(Module):
         return res + shortcut
 
 
-class Bottleneck(namedtuple('Block', ['in_channel', 'depth', 'stride'])):
-    '''A named tuple describing a ResNet block.'''
+class Bottleneck(namedtuple("Block", ["in_channel", "depth", "stride"])):
+    """A named tuple describing a ResNet block."""
 
 
 def get_block(in_channel, depth, num_units, stride=2):
 
-    return [Bottleneck(in_channel, depth, stride)] + [Bottleneck(depth, depth, 1) for i in range(num_units - 1)]
+    return [Bottleneck(in_channel, depth, stride)] + [
+        Bottleneck(depth, depth, 1) for i in range(num_units - 1)
+    ]
 
 
 def get_blocks(num_layers):
@@ -106,60 +128,68 @@ def get_blocks(num_layers):
             get_block(in_channel=64, depth=64, num_units=3),
             get_block(in_channel=64, depth=128, num_units=4),
             get_block(in_channel=128, depth=256, num_units=14),
-            get_block(in_channel=256, depth=512, num_units=3)
+            get_block(in_channel=256, depth=512, num_units=3),
         ]
     elif num_layers == 100:
         blocks = [
             get_block(in_channel=64, depth=64, num_units=3),
             get_block(in_channel=64, depth=128, num_units=13),
             get_block(in_channel=128, depth=256, num_units=30),
-            get_block(in_channel=256, depth=512, num_units=3)
+            get_block(in_channel=256, depth=512, num_units=3),
         ]
     elif num_layers == 152:
         blocks = [
             get_block(in_channel=64, depth=64, num_units=3),
             get_block(in_channel=64, depth=128, num_units=8),
             get_block(in_channel=128, depth=256, num_units=36),
-            get_block(in_channel=256, depth=512, num_units=3)
+            get_block(in_channel=256, depth=512, num_units=3),
         ]
 
     return blocks
 
 
 class Backbone(Module):
-    def __init__(self, input_size, num_layers, mode='ir'):
+    def __init__(self, input_size, num_layers, mode="ir"):
         super(Backbone, self).__init__()
-        assert input_size[0] in [112, 224], "input_size should be [112, 112] or [224, 224]"
+        assert input_size[0] in [
+            112,
+            224,
+        ], "input_size should be [112, 112] or [224, 224]"
         assert num_layers in [50, 100, 152], "num_layers should be 50, 100 or 152"
-        assert mode in ['ir', 'ir_se'], "mode should be ir or ir_se"
+        assert mode in ["ir", "ir_se"], "mode should be ir or ir_se"
         blocks = get_blocks(num_layers)
-        if mode == 'ir':
+        if mode == "ir":
             unit_module = bottleneck_IR
-        elif mode == 'ir_se':
+        elif mode == "ir_se":
             unit_module = bottleneck_IR_SE
-        self.input_layer = Sequential(Conv2d(3, 64, (3, 3), 1, 1, bias=False),
-                                      BatchNorm2d(64),
-                                      PReLU(64))
+        self.input_layer = Sequential(
+            Conv2d(3, 64, (3, 3), 1, 1, bias=False), BatchNorm2d(64), PReLU(64)
+        )
         if input_size[0] == 112:
-            self.output_layer = Sequential(BatchNorm2d(512),
-                                           Dropout(),
-                                           Flatten(),
-                                           Linear(512 * 7 * 7, 512),
-                                           BatchNorm1d(512))
+            self.output_layer = Sequential(
+                BatchNorm2d(512),
+                Dropout(),
+                Flatten(),
+                Linear(512 * 7 * 7, 512),
+                BatchNorm1d(512),
+            )
         else:
-            self.output_layer = Sequential(BatchNorm2d(512),
-                                           Dropout(),
-                                           Flatten(),
-                                           Linear(512 * 14 * 14, 512),
-                                           BatchNorm1d(512))
+            self.output_layer = Sequential(
+                BatchNorm2d(512),
+                Dropout(),
+                Flatten(),
+                Linear(512 * 14 * 14, 512),
+                BatchNorm1d(512),
+            )
 
         modules = []
         for block in blocks:
             for bottleneck in block:
                 modules.append(
-                    unit_module(bottleneck.in_channel,
-                                bottleneck.depth,
-                                bottleneck.stride))
+                    unit_module(
+                        bottleneck.in_channel, bottleneck.depth, bottleneck.stride
+                    )
+                )
         self.body = Sequential(*modules)
 
         self._initialize_weights()
@@ -192,7 +222,7 @@ class Backbone(Module):
 def IR_50(input_size):
     """Constructs a ir-50 model.
     """
-    model = Backbone(input_size, 50, 'ir')
+    model = Backbone(input_size, 50, "ir")
 
     return model
 
@@ -200,7 +230,7 @@ def IR_50(input_size):
 def IR_101(input_size):
     """Constructs a ir-101 model.
     """
-    model = Backbone(input_size, 100, 'ir')
+    model = Backbone(input_size, 100, "ir")
 
     return model
 
@@ -208,7 +238,7 @@ def IR_101(input_size):
 def IR_152(input_size):
     """Constructs a ir-152 model.
     """
-    model = Backbone(input_size, 152, 'ir')
+    model = Backbone(input_size, 152, "ir")
 
     return model
 
@@ -216,7 +246,7 @@ def IR_152(input_size):
 def IR_SE_50(input_size):
     """Constructs a ir_se-50 model.
     """
-    model = Backbone(input_size, 50, 'ir_se')
+    model = Backbone(input_size, 50, "ir_se")
 
     return model
 
@@ -224,7 +254,7 @@ def IR_SE_50(input_size):
 def IR_SE_101(input_size):
     """Constructs a ir_se-101 model.
     """
-    model = Backbone(input_size, 100, 'ir_se')
+    model = Backbone(input_size, 100, "ir_se")
 
     return model
 
@@ -232,6 +262,6 @@ def IR_SE_101(input_size):
 def IR_SE_152(input_size):
     """Constructs a ir_se-152 model.
     """
-    model = Backbone(input_size, 152, 'ir_se')
+    model = Backbone(input_size, 152, "ir_se")
 
     return model

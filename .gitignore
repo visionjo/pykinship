@@ -91,3 +91,9 @@ target/
 # exclude result outputs from source control by default
 results/
 *.pth
+/Speaker-Diarization/
+/pyannote-audio/
+/pyBK/
+/evoLVe/
+HTML4Vision/
+AgeGenderDeepLearning/

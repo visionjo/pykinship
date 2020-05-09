@@ -1,3 +1,6 @@
 [submodule "DatasheetForFIW"]
 	path = DatasheetForFIW
 	url = https://github.com/visionjo/DatasheetForFIW.git
+[submodule "speech_feature_utils"]
+	path = speech_feature_utils
+	url = https://github.com/jameslyons/python_speech_features.git

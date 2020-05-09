@@ -1,4 +1,6 @@
-# Helper function for extracting features from pre-trained models
+"""
+Helper function for extracting features from pre-trained models
+"""
 import glob
 
 import argparse
@@ -10,17 +12,10 @@ from pathlib import Path
 from tqdm import tqdm
 
 from src.models.model_irse import IR_152
+from src.tools.mytorch import l2_norm
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 tta = True
-
-
-def l2_norm(input, axis=1):
-    norm = torch.norm(input, 2, axis, True)
-    output = torch.div(input, norm)
-
-    return output
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="face alignment")
@@ -28,14 +23,14 @@ if __name__ == "__main__":
         "-source_root",
         "--source_root",
         help="specify your source dir",
-        default="../../data/fiw-videos/processed/",
+        default="../../data/fiw-videos/FIW-MM/",
         type=str,
     )
     parser.add_argument(
         "-dest_root",
         "--dest_root",
         help="specify your destination dir",
-        default="../../data/fiw-videos/new-processed/",
+        default="../../data/fiw-videos/FIW-MM/",
         type=str,
     )
     parser.add_argument(
@@ -89,7 +84,7 @@ if __name__ == "__main__":
         dout = Path(dest_root).joinpath(fid_mid)
         try:
             dout.mkdir()
-        except:
+        except Exception:
             continue
 
         arr_ccropped, arr_flipped = None, None
@@ -143,8 +138,8 @@ if __name__ == "__main__":
         with torch.no_grad():
             if tta:
                 emb_batch = (
-                        model(arr_ccropped.to(device)).cpu()
-                        + model(arr_flipped.to(device)).cpu()
+                    model(arr_ccropped.to(device)).cpu()
+                    + model(arr_flipped.to(device)).cpu()
                 )
                 encodings = l2_norm(emb_batch)
             else:

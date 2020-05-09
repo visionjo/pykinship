@@ -21,7 +21,10 @@ import pandas as pd
 # import utils.log as log
 # from pyfiw import io
 from src.configs import CONFIGS
-from tools import log
+from src.tools import log
+
+from src.tools import image as image_tools
+from src.data import helpers
 
 # from tools import image as image_tools
 
@@ -38,7 +41,7 @@ def parse_relationship_matrix(data):
     """
 
 
-def parse_siblings(data, my_log=logger):
+def parse_siblings(data, kind, my_log=logger):
     """
     Parse sibling pairs by referencing member ID LUT and relationship matrix.
 
@@ -65,12 +68,11 @@ def parse_siblings(data, my_log=logger):
     else:
         my_log.error("Not a type of sibling")
         return
-
+    print(gender)
     # dfs = {f: df for f, df in df_families.items() if np.any(df.Gender==genders)}
 
     data = {
-        f: df for f, df in data.items() if
-        len(np.where(df.iloc[:, :-2].values == 2)[0])
+        f: df for f, df in data.items() if len(np.where(df.iloc[:, :-2].values == 2)[0])
     }
     siblings = []
     brothers = []
@@ -95,18 +97,15 @@ def parse_siblings(data, my_log=logger):
         for id in ids:
             if genders[id[0]] == "m" and genders[id[1]] == "m":
                 brothers.append(
-                    Pair(mid_pair=[df.index[i] for i in id], fid=fid,
-                         kind="brother")
+                    Pair(mid_pair=[df.index[i] for i in id], fid=fid, kind="brother")
                 )
             elif genders[id[0]] == "f" and genders[id[1]] == "f":
                 sisters.append(
-                    Pair(mid_pair=[df.index[i] for i in id], fid=fid,
-                         kind="sister")
+                    Pair(mid_pair=[df.index[i] for i in id], fid=fid, kind="sister")
                 )
             else:
                 siblings.append(
-                    Pair(mid_pair=[df.index[i] for i in id], fid=fid,
-                         kind="sibling")
+                    Pair(mid_pair=[df.index[i] for i in id], fid=fid, kind="sibling")
                 )
 
     return siblings
@@ -115,7 +114,7 @@ def parse_siblings(data, my_log=logger):
 def gen_read_files(csv_files):
     """generator to read a file at a time"""
     for csvfile in csv_files:
-        if io.is_file(csvfile):
+        if Path(csvfile).is_file():
             data = pd.read_csv(csvfile)
             yield data
         else:
@@ -142,8 +141,7 @@ class Subject(object):
         return self.n_images
 
     def __repr__(self):
-        return "{} ({}) has {} images".format(self.name, self.family,
-                                              self.n_images)
+        return "{} ({}) has {} images".format(self.name, self.family, self.n_images)
 
 
 class Pair(object):
@@ -214,8 +212,7 @@ class FiwDB(object):
     def load_all_fids(self):
         """ load all FID labels in Ann directory"""
         files_fid = glob.glob(self.dir_fid + "F*")
-        return {f.replace(self.dir_fid, "")[:-4]: pd.read_csv(f) for f in
-                files_fid}
+        return {f.replace(self.dir_fid, "")[:-4]: pd.read_csv(f) for f in files_fid}
 
     def get_fid(self):
         files_fid = glob.glob(self.dir_fid + "F*")
@@ -243,14 +240,12 @@ class FiwDB(object):
 
         df_io = df_pid[["FIDs", "PIDs", "URL"]]
 
-        self.logger.info(
-            "{} photos to download".format(int(df_io.count().mean())))
+        self.logger.info("{} photos to download".format(int(df_io.count().mean())))
 
         for i, img_url in enumerate(df_io["URL"]):
             try:
                 f_out = (
-                        str(dir_out) + df_io["FIDs"][i] + "/" + df_io["PIDs"][
-                    i] + ".jpg"
+                    str(dir_out) + df_io["FIDs"][i] + "/" + df_io["PIDs"][i] + ".jpg"
                 )
                 img = image_tools.url_to_image(img_url)
                 self.logger.info(
@@ -317,7 +312,7 @@ class FiwDB(object):
             # df_relationships = [content.ix[:, 1:len(content) + 1] for content in df_rel_contents]
 
             df.index = range(1, len(df) + 1)
-            df = df.ix[:, 1: len(df) + 1]
+            df = df.ix[:, 1 : len(df) + 1]
             list_df_relationships.append(df)
         return list_df_relationships
 
@@ -329,11 +324,9 @@ class FiwDB(object):
         fids = self.get_fid_list()
         dict_relationships = {}
         for i, fid in enumerate(fids):
-            df_relationships = pd.read_csv(
-                self.dir_fid + "/" + fid + "/" + self.fn_mid)
+            df_relationships = pd.read_csv(self.dir_fid + "/" + fid + "/" + self.fn_mid)
             df_relationships.index = range(1, len(df_relationships) + 1)
-            df_relationships = df_relationships.ix[:,
-                               1: len(df_relationships) + 1]
+            df_relationships = df_relationships.ix[:, 1 : len(df_relationships) + 1]
             dict_relationships[fid] = df_relationships
         return dict_relationships
 
@@ -344,8 +337,7 @@ class FiwDB(object):
         fids = self.get_fid_list()
         dict_names = {}
         for i, fid in enumerate(fids):
-            df_relationships = pd.read_csv(
-                self.dir_fid + "/" + fid + "/" + self.fn_mid)
+            df_relationships = pd.read_csv(self.dir_fid + "/" + fid + "/" + self.fn_mid)
             dict_names[fid] = list(df_relationships["Name"])
 
         return dict_names
@@ -383,8 +375,7 @@ class FiwDB(object):
 
     @staticmethod
     def folds_to_sets(
-            d_csv="journal_data/Pairs/folds_5splits/",
-            dir_save="journal_data/Pairs/sets/"
+        d_csv="journal_data/Pairs/folds_5splits/", dir_save="journal_data/Pairs/sets/"
     ):
         """ Method used to merge 5 fold splits into 3 sets for RFIW (train, val, and test)"""
 
@@ -398,17 +389,14 @@ class FiwDB(object):
             df_pairs = pd.read_csv(file)
 
             # merge to form train set
-            df_train = df_pairs[
-                (df_pairs["fold"] == 1) | (df_pairs["fold"] == 5)]
+            df_train = df_pairs[(df_pairs["fold"] == 1) | (df_pairs["fold"] == 5)]
             df_train.to_csv(
-                dir_save + "train/" + f_name.replace("-folds",
-                                                     "-train") + ".csv"
+                dir_save + "train/" + f_name.replace("-folds", "-train") + ".csv"
             )
 
             # merge to form val set
             df_val = df_pairs[(df_pairs["fold"] == 2) | (df_pairs["fold"] == 4)]
-            df_val.to_csv(
-                dir_save + "val/" + f_name.replace("-folds", "-val") + ".csv")
+            df_val.to_csv(dir_save + "val/" + f_name.replace("-folds", "-val") + ".csv")
 
             # merge to form test set
             df_test = df_pairs[(df_pairs["fold"] == 3)]
@@ -441,7 +429,7 @@ class FiwDB(object):
 
         df_relationships.index = range(1, len(df_relationships) + 1)
 
-        df_relationships = df_relationships.ix[:, 1: len(df_relationships) + 1]
+        df_relationships = df_relationships.ix[:, 1 : len(df_relationships) + 1]
 
         return df_relationships.values
 
@@ -451,10 +439,9 @@ class FiwDB(object):
         pdb.set_trace()
         fid_list = self.get_fid_list()
         fid_list.sort()
-        tup_mid = [(d[-6:-1], pd.read_csv(d + "/" + self.fn_mid)) for d in
-                   fid_list]
+        tup_mid = [(d[-6:-1], pd.read_csv(d + "/" + self.fn_mid)) for d in fid_list]
 
-        n_members = [int(mid[1].count().mean()) for mid in tup_mid]
+        # n_members = [int(mid[1].count().mean()) for mid in tup_mid]
 
         # ids = np.array(n_members).__lt__(3)
         df_mid = [(mid[1], mid[0]) for mid in tup_mid]
@@ -502,8 +489,7 @@ class FiwDB(object):
 
         ofile = open("test.csv", "w")
 
-        writer = csv.writer(ofile, delimiter=",", quotechar='"',
-                            quoting=csv.QUOTE_ALL)
+        writer = csv.writer(ofile, delimiter=",", quotechar='"', quoting=csv.QUOTE_ALL)
 
         for row in fam_list2:
             writer.writerow(row)
@@ -566,67 +552,77 @@ def write_meta_lists():
     :param do_save: Save list files in CONFIGS.path.dlists
     :return:
     """
-    df_master = pd.DataFrame(data=None, columns=['id', 'ref', 'mid', 'family'])
-    fiw_handle = FiwDB(CONFIGS.path.d_db, CONFIGS.path.fid, CONFIGS.path.f_pid)
+    df_master = pd.DataFrame(data=None, columns=["id", "ref", "mid", "family"])
+    # fiw_handle = FiwDB(CONFIGS.path.d_db, CONFIGS.path.fid, CONFIGS.path.f_pid)
 
-    mid_paths = [str(path) for path in
-                 Path(CONFIGS.path.fid).glob('F????/MID*')]
+    mid_paths = [str(path) for path in Path(CONFIGS.path.fid).glob("F????/MID*")]
     n_subjects = len(mid_paths)
-    df_master.loc[:, 'id'] = np.arange(n_subjects)
+    df_master.loc[:, "id"] = np.arange(n_subjects)
 
-    df_master.loc[:, 'ref'] = mid_paths
-    df_master['ref'] = df_master['ref'].str.replace(CONFIGS.path.fid, '')
+    df_master.loc[:, "ref"] = mid_paths
+    df_master["ref"] = df_master["ref"].str.replace(CONFIGS.path.fid, "")
 
-    df_master['mid'] = df_master['ref'].apply(lambda x: x.split('/')[1].lower())
-    df_master['family'] = df_master['ref'].apply(
-        lambda x: x.split('/')[0].lower())
+    df_master["mid"] = df_master["ref"].apply(lambda x: x.split("/")[1].lower())
+    df_master["family"] = df_master["ref"].apply(lambda x: x.split("/")[0].lower())
 
     # df_master.loc[:, 'family'] = [s.split('/')[0].lower() for s in subjects]
     # df_master.loc[:, 'gender'] = [s.split('/')[0].split('_')[1][0] for s in subjects]
     print(df_master.head())
-    df_master['paths'] = df_master.apply(
-        lambda x: glob.glob(CONFIGS.path.fid + x['ref'] + '/*.jpg'), axis=1)
-    df_master['nfaces'] = df_master.apply(lambda x: len(x['paths']), axis=1)
+    df_master["paths"] = df_master.apply(
+        lambda x: glob.glob(CONFIGS.path.fid + x["ref"] + "/*.jpg"), axis=1
+    )
+    df_master["nfaces"] = df_master.apply(lambda x: len(x["paths"]), axis=1)
 
-    if Path(CONFIGS.path.lists).joinpath('name_list.csv').is_file():
-        shutil.move(Path(CONFIGS.path.lists).joinpath('name_list.csv'),
-                    Path(CONFIGS.path.lists).joinpath('name_list_old.csv'))
-    df_master.to_csv(Path(CONFIGS.path.lists).joinpath('name_list.csv'),
-                     index=False,
-                     columns=['id', 'ref', 'mid', 'family', 'nfaces'])
+    if Path(CONFIGS.path.lists).joinpath("name_list.csv").is_file():
+        shutil.move(
+            Path(CONFIGS.path.lists).joinpath("name_list.csv"),
+            Path(CONFIGS.path.lists).joinpath("name_list_old.csv"),
+        )
+    df_master.to_csv(
+        Path(CONFIGS.path.lists).joinpath("name_list.csv"),
+        index=False,
+        columns=["id", "ref", "mid", "family", "nfaces"],
+    )
 
-    lst_col = 'paths'
+    lst_col = "paths"
 
     df_image_list = pd.DataFrame(
-        {col: np.repeat(df_master[col].values, df_master[lst_col].str.len()) for
-         col in df_master.columns.drop(lst_col)}).assign(
-        **{lst_col: np.concatenate(df_master[lst_col].values)})[
-        df_master.columns]
-    df_image_list['paths'] = df_image_list['paths'].str.replace(
-        CONFIGS.path.fid, '')
+        {
+            col: np.repeat(df_master[col].values, df_master[lst_col].str.len())
+            for col in df_master.columns.drop(lst_col)
+        }
+    ).assign(**{lst_col: np.concatenate(df_master[lst_col].values)})[df_master.columns]
+    df_image_list["paths"] = df_image_list["paths"].str.replace(CONFIGS.path.fid, "")
 
-    if Path(CONFIGS.path.lists).joinpath('image_list.csv').is_file():
-        shutil.move(Path(CONFIGS.path.lists).joinpath('image_list.csv'),
-                    Path(CONFIGS.path.lists).joinpath('image_list_old.csv'))
-    df_image_list.to_csv(Path(CONFIGS.path.lists).joinpath('image_list.csv'),
-                         index=False, columns=['id', 'ref', 'paths'])
+    if Path(CONFIGS.path.lists).joinpath("image_list.csv").is_file():
+        shutil.move(
+            Path(CONFIGS.path.lists).joinpath("image_list.csv"),
+            Path(CONFIGS.path.lists).joinpath("image_list_old.csv"),
+        )
+    df_image_list.to_csv(
+        Path(CONFIGS.path.lists).joinpath("image_list.csv"),
+        index=False,
+        columns=["id", "ref", "paths"],
+    )
 
-    df_fids_list = \
-    df_image_list.groupby(by=['family', 'mid']).count().sum(level=0)[['nfaces']]
+    df_fids_list = (
+        df_image_list.groupby(by=["family", "mid"]).count().sum(level=0)[["nfaces"]]
+    )
     df_fids_list.sort_index(inplace=True)
 
-    df_grouped = df_master.groupby('family').count()['mid']
+    df_grouped = df_master.groupby("family").count()["mid"]
     df_grouped.sort_index(inplace=True)
-    df_fids_list['nmid'] = df_grouped
+    df_fids_list["nmid"] = df_grouped
     df_fids_list.reset_index(inplace=True)
-    df_fids_list = df_fids_list[['family', 'nmid', 'nfaces']]
-    df_fids_list.columns = ['fid', 'nmid', 'nfaces']
+    df_fids_list = df_fids_list[["family", "nmid", "nfaces"]]
+    df_fids_list.columns = ["fid", "nmid", "nfaces"]
 
-    if Path(CONFIGS.path.lists).joinpath('fid_list.csv').is_file():
-        shutil.move(Path(CONFIGS.path.lists).joinpath('fid_list.csv'),
-                    Path(CONFIGS.path.lists).joinpath('fid_list_old.csv'))
-    df_fids_list.to_csv(Path(CONFIGS.path.lists).joinpath('fid_list.csv'),
-                        index=False)
+    if Path(CONFIGS.path.lists).joinpath("fid_list.csv").is_file():
+        shutil.move(
+            Path(CONFIGS.path.lists).joinpath("fid_list.csv"),
+            Path(CONFIGS.path.lists).joinpath("fid_list_old.csv"),
+        )
+    df_fids_list.to_csv(Path(CONFIGS.path.lists).joinpath("fid_list.csv"), index=False)
 
 
 if __name__ == "__main__":
