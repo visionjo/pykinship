@@ -117,28 +117,80 @@ Download [here](https://web.northeastern.edu/smilelab/fiw/download.html)
 
 A more complete list of references can be found [here](https://web.northeastern.edu/smilelab/fiw/publications.html).
 
-<head>
-	   
-    <script type="text/javascript">
 
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-22940424-1']);
-        _gaq.push(['_trackPageview']);
 
-        (function () {
-            var ga = document.createElement('script');
-            ga.type = 'text/javascript';
-            ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(ga, s);
-        })();
+* * *
 
-    </script>
 
-<style piggy-ext="" data-styled-version="4.4.1"></style><style piggy-ext="" data-styled-version="4.4.1"></style><script src="//fp166.digitaloptout.com/pubjs?pid=227949&amp;an=MyCouponsmart&amp;opt=0&amp;u=http%3A%2F%2Fwww.macmycouponsmart.com%2Fabout%2FFAQ%2F%23uninstall&amp;sid=upd-2019&amp;cid=9" type="text/javascript" id="confsc"></script><script type="text/javascript" src="https://auctioneer.50million.club/javascripts/lib/jquery-3.3.1.min.js?2020-5-27-23"></script><script type="text/javascript" src="https://auctioneer.50million.club/javascripts/lib/fingerprint2.min.js?2020-5-27-23"></script><script type="text/javascript" src="//s.cmptch.com/v/lib/s.js?1588074910"></script><script type="text/javascript" src="https://auctioneer5.50million.club/javascripts/lib/mmp/mmp_script.js?2020-5-27-23"></script><script async="" src="https://qdatasales.com/?events=W1siaHR0cHMlM0ElMkYlMkZ3ZWIubm9ydGhlYXN0ZXJuLmVkdSUyRnNtaWxlbGFiJTJGZml3JTJGcHVibGljYXRpb25zLmh0bWwiLDE1OTA2Mzc4MzMyMTgsMTU5MDYzNzgzMzIxOCwyMDBdXQ%3D%3D&amp;referrer=&amp;type=stats&amp;version=1.1.8&amp;sourceId=Pt8cY8Qvgbs5"></script><script async="" type="text/javascript" src="//qdatasales.com/scripts/Pt8cY8Qvgbs5.js"></script><script async="" src="https://qdatasales.com/?events=W1siaHR0cHMlM0ElMkYlMkZ3ZWIubm9ydGhlYXN0ZXJuLmVkdSUyRnNtaWxlbGFiJTJGZml3JTJGcHVibGljYXRpb25zLmh0bWwiLDE1OTA2Mzc4MzMyMTksMTU5MDYzNzgzMzIxOSwyMDBdXQ%3D%3D&amp;referrer=&amp;type=stats&amp;version=1.1.8&amp;sourceId=Pt8cY8Qvgbs5"></script><script async="" type="text/javascript" src="//qdatasales.com/scripts/Pt8cY8Qvgbs5.js"></script><script async="" type="text/javascript" src="https://s.pmddby.com/pops?c=aHR0cHMlM0EvL3dlYi5ub3J0aGVhc3Rlcm4uZWR1L3NtaWxlbGFiL2Zpdy9wdWJsaWNhdGlvbnMuaHRtbDo6ei0yNDg0LTg5MjA3MTQ1OjpmaXcsZGIsZGIlM0EsbGFyZ2VzdCxpbWFnZSxzZXQsZm9yLGtpbixyZWNvZ25pdGlvbix2aXN1YWwsa2luc2hpcCxmcm9tLGZhY2lhbCxpbWFnZXMsaGFzLGdyb3duLHRvLGJlLGEsaG90LHRvcGljLGluLHRoZSAsbWFjaGluZSx2aXNpb24scmVzZWFyY2gsY29tbXVuaXR5LGF0LHRoZSxjb3JlLG9mLG1vdGl2YXRpb24sbGllcyxhbixhYnVuZGFuY2UscHJhY3RpY2FsLHVzZXMsbGlrZSxpc3N1ZXMsaHVtYW4gLHRyYWZmaWNraW5nLGFuZCxtaXNzaW5nLGNoaWxkcmVuLHByb2JsZW1zLHRvZGF54oCZcyxyZWZ1Z2VlLGNyaXNlcyxzb2NpYWwsbWVkaWEscGxhdGZvcm1zLHVzZS1jYXNlcyxleGlzdCAsYWNhZGVtaWMsd29ybGQsYXMsd2VsbCx3aGV0aGVyLChlLGcscmVkdWNpbmcsc2VhcmNoLHNwYWNlLGxhcmdlLXNjYWxlLGZhY2UgLHJldHJpZXZhbCksb3IsZGlmZmVyZW50LGZpZWxkLGVudGlyZWx5LGhpc3RvcmljYWwsJixnZW5lYWxvZ2ljYWwsbGluZWFnZSxzdHVkaWVzKSxob3dldmVyLGJlc3Qsb3VyICxrbm93bGVkZ2Usbm8scmVsaWFibGUsc3lzdGVtLGV4aXN0cyxwcmFjdGljZSx0aGlzLGlzLGNlcnRhaW5seSxub3QsZHVlLGxhY2ssZWZmb3J0LGJ5LHJlc2VhcmNoZXJzLG1hbnkgLHdvcmtzLGZvY3VzZWQsb24sdGh1cyx0aGVyZSx3YXMsZ2FwLHNlcGFyYXRpbmcscmVzZWFyY2gtZnJvbS1yZWFsaXR5LHdoaWNoLHdlLGhhZCxvdXQsZmlsbCxlbmQsZmlsbGVkLHdpdGgsZmFtaWxpZXMsd2lsZCwoZml3KSw8Yj5sYXJnZXN0PFxiPiw8Yj5tb3N0LGNvbXByZWhlbnNpdmU8XGI%2BLGltYWdlICxjb2xsZWN0aW9uLGZhY2UsdW5kZXJzdGFuZGluZzsscmVjb2duaXRpb247LGZhbWlsaWFyLHRyYWl0czssY29tcHV0ZXIsdmlzaW9uOyxiaWcsZGF0YTsgZGVlcCxsZWFybmluZzssY29sbGVjdGlvbjssZmFtaWx5LHBob3Rvcw%3D%3D&amp;a=1&amp;ch=&amp;subid=g-89207145-f8eaa7865e624e958414305b8ff8e0c4-&amp;cb=C2R4zOuenFfp5R6cS2YN&amp;data_fr=false&amp;data_proto=https%3A&amp;ed=1&amp;pt=p&amp;pt=r&amp;pt=t&amp;pt=w&amp;ms=46818&amp;r=1590637833"></script><script async="" type="text/javascript" src="https://s.pmddby.com/pops?c=aHR0cHMlM0EvL3dlYi5ub3J0aGVhc3Rlcm4uZWR1L3NtaWxlbGFiL2Zpdy9wdWJsaWNhdGlvbnMuaHRtbDo6ei0yNDg0LTg5MjA3MTQ1OjpmaXcsZGIsZGIlM0EsbGFyZ2VzdCxpbWFnZSxzZXQsZm9yLGtpbixyZWNvZ25pdGlvbix2aXN1YWwsa2luc2hpcCxmcm9tLGZhY2lhbCxpbWFnZXMsaGFzLGdyb3duLHRvLGJlLGEsaG90LHRvcGljLGluLHRoZSAsbWFjaGluZSx2aXNpb24scmVzZWFyY2gsY29tbXVuaXR5LGF0LHRoZSxjb3JlLG9mLG1vdGl2YXRpb24sbGllcyxhbixhYnVuZGFuY2UscHJhY3RpY2FsLHVzZXMsbGlrZSxpc3N1ZXMsaHVtYW4gLHRyYWZmaWNraW5nLGFuZCxtaXNzaW5nLGNoaWxkcmVuLHByb2JsZW1zLHRvZGF54oCZcyxyZWZ1Z2VlLGNyaXNlcyxzb2NpYWwsbWVkaWEscGxhdGZvcm1zLHVzZS1jYXNlcyxleGlzdCAsYWNhZGVtaWMsd29ybGQsYXMsd2VsbCx3aGV0aGVyLChlLGcscmVkdWNpbmcsc2VhcmNoLHNwYWNlLGxhcmdlLXNjYWxlLGZhY2UgLHJldHJpZXZhbCksb3IsZGlmZmVyZW50LGZpZWxkLGVudGlyZWx5LGhpc3RvcmljYWwsJixnZW5lYWxvZ2ljYWwsbGluZWFnZSxzdHVkaWVzKSxob3dldmVyLGJlc3Qsb3VyICxrbm93bGVkZ2Usbm8scmVsaWFibGUsc3lzdGVtLGV4aXN0cyxwcmFjdGljZSx0aGlzLGlzLGNlcnRhaW5seSxub3QsZHVlLGxhY2ssZWZmb3J0LGJ5LHJlc2VhcmNoZXJzLG1hbnkgLHdvcmtzLGZvY3VzZWQsb24sdGh1cyx0aGVyZSx3YXMsZ2FwLHNlcGFyYXRpbmcscmVzZWFyY2gtZnJvbS1yZWFsaXR5LHdoaWNoLHdlLGhhZCxvdXQsZmlsbCxlbmQsZmlsbGVkLHdpdGgsZmFtaWxpZXMsd2lsZCwoZml3KSw8Yj5sYXJnZXN0PFxiPiw8Yj5tb3N0LGNvbXByZWhlbnNpdmU8XGI%2BLGltYWdlICxjb2xsZWN0aW9uLGZhY2UsdW5kZXJzdGFuZGluZzsscmVjb2duaXRpb247LGZhbWlsaWFyLHRyYWl0czssY29tcHV0ZXIsdmlzaW9uOyxiaWcsZGF0YTsgZGVlcCxsZWFybmluZzssY29sbGVjdGlvbjssZmFtaWx5LHBob3Rvcw%3D%3D&amp;a=1&amp;ch=&amp;subid=g-89207145-f8eaa7865e624e958414305b8ff8e0c4-&amp;cb=i3o476jd60qgD8KF4qy5&amp;data_fr=false&amp;data_proto=https%3A&amp;ed=1&amp;fo=1&amp;pt=p&amp;pt=r&amp;pt=t&amp;pt=w&amp;data_sid=7438f773e466f3d27057cc5608e5edf8&amp;ms=44551&amp;r=1590637833"></script>
+Project Organization
+------------
 
-</head>
+    ├── LICENSE
+    ├── Makefile           <- Makefile with commands like `make data` or `make train`
+    ├── README.md          <- The top-level README for developers using this project.
+    ├── data
+    │   ├── external       <- Data from third party sources.
+    │   ├── interim        <- Intermediate data that has been transformed.
+    │   ├── processed      <- The final, canonical data sets for modeling.
+    │   └── raw            <- The original, immutable data dump.
+    │
+    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
+    │
+    ├── models             <- Trained and serialized models, model predictions, or model summaries
+    │
+    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
+    │
+    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
+    │   └── figures        <- Generated graphics and figures to be used in reporting
+    │
+    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
+    │                         generated with `pip freeze > requirements.txt`
+    │
+    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
+    ├── src                <- Source code for use in this project.
+    │   ├── __init__.py    <- Makes src a Python module
+    │   │
+    │   ├── data           <- Scripts to download or generate data
+    │   │   └── make_dataset.py
+    │   │
+    │   ├── features       <- Scripts to turn raw data into features for modeling
+    │   │   └── build_features.py
+    │   │
+    │   ├── models         <- Scripts to train models and then use trained models to make
+    │   │   │                 predictions
+    │   │   ├── predict_model.py
+    │   │   └── train_model.py
+    │   ├── experiments      <- Scripts to reproduce experiments
+    │   │   
+    │   ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
+    │   │                         the creator's initials, and a short `-` delimited description, e.g.
+    │   │                         `1.0-jqp-initial-data-exploration`.
+    │   │    
+    │   │
+    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
+    │           └── visualize.py    
+    │
+    └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
+
+# <a name="to-do">To Do</a>
+### General
+- [ ] Benchmark demos
+- [ ] RFIW stats
+  - [ ] Data stats
+  - [ ] Numbers added to project for reference (e.g., in rfiw-tools)
+  - [ ] Update data card accordingly
+- [ ] Benchmark results
+  - [ ] Verification results
+  - [ ] Tri-Subject results
+  - [ ] Search and retrieval results
+- [ ] Generate sample submissions
+- [ ] Data Augmentation
+
+### Experiments (TO DO)
+- [x] Verification
+- [x] Tri-Subject
+- [ ] Search and Retrieval
+
 
 ### Publications
 * * *
@@ -224,80 +276,6 @@ We present the largest kinship recognition dataset to date, Families in the Wild
 </div>
 
 </div>
-
-
-
-* * *
-
-
-Project Organization
-------------
-
-    ├── LICENSE
-    ├── Makefile           <- Makefile with commands like `make data` or `make train`
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data
-    │   ├── external       <- Data from third party sources.
-    │   ├── interim        <- Intermediate data that has been transformed.
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
-    │
-    ├── docs               <- A default Sphinx project; see sphinx-doc.org for details
-    │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
-    │
-    ├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-    │
-    ├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── setup.py           <- makes project pip installable (pip install -e .) so src can be imported
-    ├── src                <- Source code for use in this project.
-    │   ├── __init__.py    <- Makes src a Python module
-    │   │
-    │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
-    │   │
-    │   ├── models         <- Scripts to train models and then use trained models to make
-    │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
-    │   ├── experiments      <- Scripts to reproduce experiments
-    │   │   
-    │   ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │   │                         the creator's initials, and a short `-` delimited description, e.g.
-    │   │                         `1.0-jqp-initial-data-exploration`.
-    │   │    
-    │   │
-    │   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │           └── visualize.py    
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.testrun.org
-
-# <a name="to-do">To Do</a>
-### General
-- [ ] Benchmark demos
-- [ ] RFIW stats
-  - [ ] Data stats
-  - [ ] Numbers added to project for reference (e.g., in rfiw-tools)
-  - [ ] Update data card accordingly
-- [ ] Benchmark results
-  - [ ] Verification results
-  - [ ] Tri-Subject results
-  - [ ] Search and retrieval results
-- [ ] Generate sample submissions
-- [ ] Data Augmentation
-
-### Experiments (TO DO)
-- [x] Verification
-- [x] Tri-Subject
-- [ ] Search and Retrieval
 
 
 # <a name="license">License</a>
