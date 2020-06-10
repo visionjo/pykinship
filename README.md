@@ -100,8 +100,7 @@ FID0001.csv
 	 3      5     4     0     name3     M
 	
 ```
-
-Here we have 3 family members, as listed under the MID column (far-left). Each MID reads acorss its row.
+Here we have 3 family members, as listed under the MID column (far-left). Each MID reads acorss its row
 
 
 We can see that MID1 is related to MID2 by 4->1 (Parent->Sibling), which of course can be viewed as the inverse, i.e., MID2->MID1 is 1->4. It can also be seen that MID1 and MID3 are Spouses of one another, i.e., 5->5. And so on, and so forth.
