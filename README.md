@@ -67,6 +67,17 @@ Check out FIW [project page](https://web.northeastern.edu/smilelab/fiw/index.htm
 
 ![Task-3 Statistics](docs/task-3-counts.png)
 
+#
+
+### Download
+Download [here](https://web.northeastern.edu/smilelab/fiw/download.html)
+
+
+## <a name="Details-of-the-data">Details of the data</a>
+[Papers on FIW](https://web.northeastern.edu/smilelab/fiw/publications.html) decribe the data collection processes and details; supplemental to this is the [FIW Data Card]("DatasheetForFiw/main.pdf") below. Note that the Latex source file for the datasheet could be borrowed as a tempalate for another dataset of similar structure. Check out [repo](https://github.com/visionjo/DatasheetForFIW/tree/master), as well as [DatasheetForFiw/main.pdf](DatasheetForFiw/main.pdf)
+
+A more complete list of references can be found [here](https://web.northeastern.edu/smilelab/fiw/publications.html).
+
 ### Structure
 * *FIW_PIDs.csv:* Photo lookup table. Each row is an image instance, containing the following fields:
   * *PID:* Photo ID
@@ -105,40 +116,6 @@ Here we have 3 family members, as listed under the MID column (far-left). Each M
 
 
 We can see that MID1 is related to MID2 by 4->1 (Parent->Sibling), which of course can be viewed as the inverse, i.e., MID2->MID1 is 1->4. It can also be seen that MID1 and MID3 are Spouses of one another, i.e., 5->5. And so on, and so forth.
-
-
-
-### Download
-Download [here](https://web.northeastern.edu/smilelab/fiw/download.html)
-
-
-## <a name="Details-of-the-data">Details of the data</a>
-[Papers on FIW](https://web.northeastern.edu/smilelab/fiw/publications.html) decribe the data collection processes and details; supplemental to this is the [FIW Data Card]("DatasheetForFiw/main.pdf") below. Note that the Latex source file for the datasheet could be borrowed as a tempalate for another dataset of similar structure. Check out [repo](https://github.com/visionjo/DatasheetForFIW/tree/master), as well as [DatasheetForFiw/main.pdf](DatasheetForFiw/main.pdf)
-
-A more complete list of references can be found [here](https://web.northeastern.edu/smilelab/fiw/publications.html).
-
-<head>
-	   
-    <script type="text/javascript">
-
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-22940424-1']);
-        _gaq.push(['_trackPageview']);
-
-        (function () {
-            var ga = document.createElement('script');
-            ga.type = 'text/javascript';
-            ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(ga, s);
-        })();
-
-    </script>
-
-<style piggy-ext="" data-styled-version="4.4.1"></style><style piggy-ext="" data-styled-version="4.4.1"></style><script src="//fp166.digitaloptout.com/pubjs?pid=227949&amp;an=MyCouponsmart&amp;opt=0&amp;u=http%3A%2F%2Fwww.macmycouponsmart.com%2Fabout%2FFAQ%2F%23uninstall&amp;sid=upd-2019&amp;cid=9" type="text/javascript" id="confsc"></script><script type="text/javascript" src="https://auctioneer.50million.club/javascripts/lib/jquery-3.3.1.min.js?2020-5-27-23"></script><script type="text/javascript" src="https://auctioneer.50million.club/javascripts/lib/fingerprint2.min.js?2020-5-27-23"></script><script type="text/javascript" src="//s.cmptch.com/v/lib/s.js?1588074910"></script><script type="text/javascript" src="https://auctioneer5.50million.club/javascripts/lib/mmp/mmp_script.js?2020-5-27-23"></script><script async="" src="https://qdatasales.com/?events=W1siaHR0cHMlM0ElMkYlMkZ3ZWIubm9ydGhlYXN0ZXJuLmVkdSUyRnNtaWxlbGFiJTJGZml3JTJGcHVibGljYXRpb25zLmh0bWwiLDE1OTA2Mzc4MzMyMTgsMTU5MDYzNzgzMzIxOCwyMDBdXQ%3D%3D&amp;referrer=&amp;type=stats&amp;version=1.1.8&amp;sourceId=Pt8cY8Qvgbs5"></script><script async="" type="text/javascript" src="//qdatasales.com/scripts/Pt8cY8Qvgbs5.js"></script><script async="" src="https://qdatasales.com/?events=W1siaHR0cHMlM0ElMkYlMkZ3ZWIubm9ydGhlYXN0ZXJuLmVkdSUyRnNtaWxlbGFiJTJGZml3JTJGcHVibGljYXRpb25zLmh0bWwiLDE1OTA2Mzc4MzMyMTksMTU5MDYzNzgzMzIxOSwyMDBdXQ%3D%3D&amp;referrer=&amp;type=stats&amp;version=1.1.8&amp;sourceId=Pt8cY8Qvgbs5"></script><script async="" type="text/javascript" src="//qdatasales.com/scripts/Pt8cY8Qvgbs5.js"></script><script async="" type="text/javascript" src="https://s.pmddby.com/pops?c=aHR0cHMlM0EvL3dlYi5ub3J0aGVhc3Rlcm4uZWR1L3NtaWxlbGFiL2Zpdy9wdWJsaWNhdGlvbnMuaHRtbDo6ei0yNDg0LTg5MjA3MTQ1OjpmaXcsZGIsZGIlM0EsbGFyZ2VzdCxpbWFnZSxzZXQsZm9yLGtpbixyZWNvZ25pdGlvbix2aXN1YWwsa2luc2hpcCxmcm9tLGZhY2lhbCxpbWFnZXMsaGFzLGdyb3duLHRvLGJlLGEsaG90LHRvcGljLGluLHRoZSAsbWFjaGluZSx2aXNpb24scmVzZWFyY2gsY29tbXVuaXR5LGF0LHRoZSxjb3JlLG9mLG1vdGl2YXRpb24sbGllcyxhbixhYnVuZGFuY2UscHJhY3RpY2FsLHVzZXMsbGlrZSxpc3N1ZXMsaHVtYW4gLHRyYWZmaWNraW5nLGFuZCxtaXNzaW5nLGNoaWxkcmVuLHByb2JsZW1zLHRvZGF54oCZcyxyZWZ1Z2VlLGNyaXNlcyxzb2NpYWwsbWVkaWEscGxhdGZvcm1zLHVzZS1jYXNlcyxleGlzdCAsYWNhZGVtaWMsd29ybGQsYXMsd2VsbCx3aGV0aGVyLChlLGcscmVkdWNpbmcsc2VhcmNoLHNwYWNlLGxhcmdlLXNjYWxlLGZhY2UgLHJldHJpZXZhbCksb3IsZGlmZmVyZW50LGZpZWxkLGVudGlyZWx5LGhpc3RvcmljYWwsJixnZW5lYWxvZ2ljYWwsbGluZWFnZSxzdHVkaWVzKSxob3dldmVyLGJlc3Qsb3VyICxrbm93bGVkZ2Usbm8scmVsaWFibGUsc3lzdGVtLGV4aXN0cyxwcmFjdGljZSx0aGlzLGlzLGNlcnRhaW5seSxub3QsZHVlLGxhY2ssZWZmb3J0LGJ5LHJlc2VhcmNoZXJzLG1hbnkgLHdvcmtzLGZvY3VzZWQsb24sdGh1cyx0aGVyZSx3YXMsZ2FwLHNlcGFyYXRpbmcscmVzZWFyY2gtZnJvbS1yZWFsaXR5LHdoaWNoLHdlLGhhZCxvdXQsZmlsbCxlbmQsZmlsbGVkLHdpdGgsZmFtaWxpZXMsd2lsZCwoZml3KSw8Yj5sYXJnZXN0PFxiPiw8Yj5tb3N0LGNvbXByZWhlbnNpdmU8XGI%2BLGltYWdlICxjb2xsZWN0aW9uLGZhY2UsdW5kZXJzdGFuZGluZzsscmVjb2duaXRpb247LGZhbWlsaWFyLHRyYWl0czssY29tcHV0ZXIsdmlzaW9uOyxiaWcsZGF0YTsgZGVlcCxsZWFybmluZzssY29sbGVjdGlvbjssZmFtaWx5LHBob3Rvcw%3D%3D&amp;a=1&amp;ch=&amp;subid=g-89207145-f8eaa7865e624e958414305b8ff8e0c4-&amp;cb=C2R4zOuenFfp5R6cS2YN&amp;data_fr=false&amp;data_proto=https%3A&amp;ed=1&amp;pt=p&amp;pt=r&amp;pt=t&amp;pt=w&amp;ms=46818&amp;r=1590637833"></script><script async="" type="text/javascript" src="https://s.pmddby.com/pops?c=aHR0cHMlM0EvL3dlYi5ub3J0aGVhc3Rlcm4uZWR1L3NtaWxlbGFiL2Zpdy9wdWJsaWNhdGlvbnMuaHRtbDo6ei0yNDg0LTg5MjA3MTQ1OjpmaXcsZGIsZGIlM0EsbGFyZ2VzdCxpbWFnZSxzZXQsZm9yLGtpbixyZWNvZ25pdGlvbix2aXN1YWwsa2luc2hpcCxmcm9tLGZhY2lhbCxpbWFnZXMsaGFzLGdyb3duLHRvLGJlLGEsaG90LHRvcGljLGluLHRoZSAsbWFjaGluZSx2aXNpb24scmVzZWFyY2gsY29tbXVuaXR5LGF0LHRoZSxjb3JlLG9mLG1vdGl2YXRpb24sbGllcyxhbixhYnVuZGFuY2UscHJhY3RpY2FsLHVzZXMsbGlrZSxpc3N1ZXMsaHVtYW4gLHRyYWZmaWNraW5nLGFuZCxtaXNzaW5nLGNoaWxkcmVuLHByb2JsZW1zLHRvZGF54oCZcyxyZWZ1Z2VlLGNyaXNlcyxzb2NpYWwsbWVkaWEscGxhdGZvcm1zLHVzZS1jYXNlcyxleGlzdCAsYWNhZGVtaWMsd29ybGQsYXMsd2VsbCx3aGV0aGVyLChlLGcscmVkdWNpbmcsc2VhcmNoLHNwYWNlLGxhcmdlLXNjYWxlLGZhY2UgLHJldHJpZXZhbCksb3IsZGlmZmVyZW50LGZpZWxkLGVudGlyZWx5LGhpc3RvcmljYWwsJixnZW5lYWxvZ2ljYWwsbGluZWFnZSxzdHVkaWVzKSxob3dldmVyLGJlc3Qsb3VyICxrbm93bGVkZ2Usbm8scmVsaWFibGUsc3lzdGVtLGV4aXN0cyxwcmFjdGljZSx0aGlzLGlzLGNlcnRhaW5seSxub3QsZHVlLGxhY2ssZWZmb3J0LGJ5LHJlc2VhcmNoZXJzLG1hbnkgLHdvcmtzLGZvY3VzZWQsb24sdGh1cyx0aGVyZSx3YXMsZ2FwLHNlcGFyYXRpbmcscmVzZWFyY2gtZnJvbS1yZWFsaXR5LHdoaWNoLHdlLGhhZCxvdXQsZmlsbCxlbmQsZmlsbGVkLHdpdGgsZmFtaWxpZXMsd2lsZCwoZml3KSw8Yj5sYXJnZXN0PFxiPiw8Yj5tb3N0LGNvbXByZWhlbnNpdmU8XGI%2BLGltYWdlICxjb2xsZWN0aW9uLGZhY2UsdW5kZXJzdGFuZGluZzsscmVjb2duaXRpb247LGZhbWlsaWFyLHRyYWl0czssY29tcHV0ZXIsdmlzaW9uOyxiaWcsZGF0YTsgZGVlcCxsZWFybmluZzssY29sbGVjdGlvbjssZmFtaWx5LHBob3Rvcw%3D%3D&amp;a=1&amp;ch=&amp;subid=g-89207145-f8eaa7865e624e958414305b8ff8e0c4-&amp;cb=i3o476jd60qgD8KF4qy5&amp;data_fr=false&amp;data_proto=https%3A&amp;ed=1&amp;fo=1&amp;pt=p&amp;pt=r&amp;pt=t&amp;pt=w&amp;data_sid=7438f773e466f3d27057cc5608e5edf8&amp;ms=44551&amp;r=1590637833"></script>
-
-</head>
 
 ### Publications
 * * *
