@@ -2,10 +2,11 @@ from pathlib import Path
 
 import numpy as np
 from tqdm import tqdm
+from src.tools.features import l2_norm
 
-path_tracks = Path("/Volumes/MyWorld/FIW-MM/clips-tp-faces")
+path_tracks = Path("/Volumes/MyWorld/FIW-MM/new-features/VIDs-aligned-tp-faces-aligned")
 for fid in tqdm(list(path_tracks.iterdir())):
-    if ".zip" in str(fid):
+    if ".zip" in str(fid) or ".DS_Store" in str(fid):
         continue
     for mid in fid.iterdir():
         if not mid.is_dir():
@@ -16,10 +17,12 @@ for fid in tqdm(list(path_tracks.iterdir())):
                     if vdir.is_dir():
                         fout = vdir / "avg_encoding.npy"
                         if fout.is_file():
+                            encoding = np.load(fout)
+                            np.save(fout, l2_norm(encoding.reshape(1, -1)))
                             print("skip")
                             continue
                         paths_encodings = []
-                        for f_feature in vdir.glob("v*/*.npy"):
+                        for f_feature in vdir.glob("*.npy"):
                             if "encoding" in f_feature.name:
                                 continue
                             print(f_feature)

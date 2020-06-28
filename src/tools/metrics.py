@@ -30,15 +30,16 @@ def iou(bbox1, bbox2):
     overlap_y1 = min(y1_1, y1_2)
 
     # check if there is an overlap
-    if overlap_x1 - overlap_x0 <= 0 or overlap_y1 - overlap_y0 <= 0:
-        return 0
+    # if overlap_x1 - overlap_x0 <= 0 or overlap_y1 - overlap_y0 <= 0:
+    #     return 0
 
     # if yes, calculate the ratio of the overlap to each ROI size and the unified size
     size_1 = (x1_1 - x0_1) * (y1_1 - y0_1)
     size_2 = (x1_2 - x0_2) * (y1_2 - y0_2)
     size_intersection = (overlap_x1 - overlap_x0) * (overlap_y1 - overlap_y0)
     size_union = size_1 + size_2 - size_intersection
-
+    if size_union == 0:
+        return 0
     return size_intersection / size_union
 
 
