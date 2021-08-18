@@ -7,6 +7,14 @@ import pandas as pd
 
 from evaluation.utils import evaluate
 
+def load_feature_file(path):
+    with open(path, 'rb') as fin:
+        features = pickle.load(fin)
+    feat_mat = features['feat_mat']
+    labels = features['labels']
+    refs = features['refs']
+    return feat_mat, labels, refs
+
 # set flags
 overwrite = False
 # set paths
@@ -30,12 +38,7 @@ df_probes["feat_path"] = df_probes.apply(
 
 if not overwrite and path_probe_features.exists():
     # load if probe features are stored
-    with open(path_probe_features, 'rb') as fin:
-        features = pickle.load(fin)
-        feat_mat = features['feat_mat']
-        labels = features['labels']
-        refs = features['refs']
-        del features
+    feat_mat, labels, refs = load_feature_file(path_probe_features)
 else:
     # load all pickle files and dump to single pickle
     fpaths = df_probes.feat_path.to_list()
@@ -59,12 +62,7 @@ df_gallery["feat_path"] = df_gallery.apply(
 )
 
 if not overwrite and path_gallery_features.exists():
-    with open(path_gallery_features, 'rb') as fin:
-        features = pickle.load(fin)
-        feat_mat_gallery = features['feat_mat']
-        labels_gallery = features['labels']
-        refs_gallery = features['refs']
-        del features
+    feat_mat_gallery, labels_gallery, refs_gallery = load_feature_file(path_gallery_features)
 else:
     feat_mat_gallery = []
     labels_gallery = np.array(df_gallery["fid"].to_list())
