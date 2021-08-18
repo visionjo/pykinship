@@ -7,6 +7,9 @@ import pandas as pd
 
 from evaluation.utils import evaluate
 
+# set flags
+overwrite = False
+# set paths
 dir_root = "/media/jrob/Seagate Backup Plus Drive/"
 file_probe = f"{dir_root}rfiw2021/rfiw2021-data/track-III/test/data/lists/probe_lut.csv"
 file_gallery = (
@@ -14,52 +17,74 @@ file_gallery = (
 )
 
 dir_features = f"{dir_root}rfiw2021/rfiw2021-data/FIDs-features/"
+path_probe_features = Path(f"{dir_root}probe_features.pkl")
+path_gallery_features = Path(f"{dir_features}gallery_features.pkl")
 path_features = Path(dir_features)
 
+# read in probe list (table)
 df_probes = pd.read_csv(file_probe)
-
+# add column for file pointer to average encoding for MID
 df_probes["feat_path"] = df_probes.apply(
-    lambda row: path_features / str(row["original"]), axis=1
-)
-df_probes["feat_path"] = df_probes.apply(
-    lambda row: row["feat_path"] / "avg_encoding.npy", axis=1
+    lambda row: path_features / str(row["original"]) / "avg_encoding.npy", axis=1
 )
 
-fpaths = df_probes.feat_path.to_list()
-feat_mat = []
-labels = []
-refs = []
-for row in df_probes.iterrows():
-    feat = np.load(str(row[1]["feat_path"]))
-    feat_mat.append(feat)
-    labels.append(row[1]["fid"])
-    refs.append(row[1]["original"])
-labels = np.array(labels)
-feat_mat = np.array(feat_mat)
+if not overwrite and path_probe_features.exists():
+    # load if probe features are stored
+    with open(path_probe_features, 'rb') as fin:
+        features = pickle.load(fin)
+        feat_mat = features['feat_mat']
+        labels = features['labels']
+        refs = features['refs']
+        del features
+else:
+    # load all pickle files and dump to single pickle
+    fpaths = df_probes.feat_path.to_list()
+    feat_mat = []
+    labels = np.array(df_probes["fid"].to_list())
+    refs = df_probes["original"].to_list()
+    for row in tqdm(df_probes.iterrows()):
+        feat = np.load(str(row[1]["feat_path"]))
+        feat_mat.append(feat)
+
+    feat_mat = np.array(feat_mat)
+
+    features = {'feat_mat': feat_mat, 'labels': labels, 'refs': refs}
+    with open(path_probe_features, 'wb') as fout:
+        pickle.dump(features, fout)
+    del features
 
 df_gallery = pd.read_csv(file_gallery)
-
 df_gallery["feat_path"] = df_gallery.apply(
-    lambda row: path_features / str(row["original"]).replace(".jpg", ".pkl"), axis=1
+    lambda el: path_features / str(el["original"]).replace(".jpg", ".pkl"), axis=1
 )
-# df_gallery['feat_path'] = df_gallery.apply(lambda row : row['feat_path'] / 'avg_encoding.npy', axis = 1)
 
-feat_mat_gallery = []
-labels_gallery = []
-refs_gallery = []
-for row in df_gallery.iterrows():
-    try:
-        with open(str(row[1]["feat_path"]), "rb") as file:
-            feat = pickle.load(file)
-        # feat=np.load(str(row[1]['feat_path']))
-        feat_mat_gallery.append(feat)
-        labels_gallery.append(row[1]["fid"])
-        refs_gallery.append(row[1]["original"])
-    except:
-        print(str(row[1]["feat_path"]))
+if not overwrite and path_gallery_features.exists():
+    with open(path_gallery_features, 'rb') as fin:
+        features = pickle.load(fin)
+        feat_mat_gallery = features['feat_mat']
+        labels_gallery = features['labels']
+        refs_gallery = features['refs']
+        del features
+else:
+    feat_mat_gallery = []
+    labels_gallery = np.array(df_gallery["fid"].to_list())
+    refs_gallery = df_gallery["original"].to_list()
 
-labels_gallery = np.array(labels_gallery)
-feat_mat_gallery = np.array(feat_mat_gallery)
+    for row in tqdm(df_gallery.iterrows()):
+        try:
+            with open(str(row[1]["feat_path"]), "rb") as file:
+                feat = pickle.load(file)
+            # feat=np.load(str(row[1]['feat_path']))
+            feat_mat_gallery.append(feat)
+        except:
+            print(str(row[1]["feat_path"]))
+
+    feat_mat_gallery = np.array(feat_mat_gallery)
+    features = {'feat_mat': feat_mat_gallery, 'labels': labels_gallery, 'refs': refs_gallery}
+    with open(path_gallery_features, 'wb') as fout:
+        pickle.dump(features, fout)
+    del features
+
 ## query-gallery
 CMC = 0
 ap = 0.0
