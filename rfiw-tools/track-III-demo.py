@@ -1,19 +1,26 @@
 import pickle
 from pathlib import Path
-from tqdm import tqdm
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
 from evaluation.utils import evaluate
+from tqdm import tqdm
+
 
 def load_feature_file(path):
-    with open(path, 'rb') as fin:
-        features = pickle.load(fin)
-    feat_mat = features['feat_mat']
-    labels = features['labels']
-    refs = features['refs']
-    return feat_mat, labels, refs
+    """
+    Load features stored as dictionary with fields 'feature_mat', 'labels', and 'refs'
+    :param path:
+    :return:
+    """
+    with open(path, "rb") as fin:
+        features_in = pickle.load(fin)
+    mat_feat = features_in["feat_mat"]
+    arr_labels = features_in["labels"]
+    arr_refs = features_in["refs"]
+    return mat_feat, arr_labels, arr_refs
+
 
 # set flags
 overwrite = False
@@ -51,8 +58,8 @@ else:
 
     feat_mat = np.array(feat_mat)
 
-    features = {'feat_mat': feat_mat, 'labels': labels, 'refs': refs}
-    with open(path_probe_features, 'wb') as fout:
+    features = {"feat_mat": feat_mat, "labels": labels, "refs": refs}
+    with open(path_probe_features, "wb") as fout:
         pickle.dump(features, fout)
     del features
 
@@ -62,7 +69,9 @@ df_gallery["feat_path"] = df_gallery.apply(
 )
 
 if not overwrite and path_gallery_features.exists():
-    feat_mat_gallery, labels_gallery, refs_gallery = load_feature_file(path_gallery_features)
+    feat_mat_gallery, labels_gallery, refs_gallery = load_feature_file(
+        path_gallery_features
+    )
 else:
     feat_mat_gallery = []
     labels_gallery = np.array(df_gallery["fid"].to_list())
@@ -78,8 +87,12 @@ else:
             print(str(row[1]["feat_path"]))
 
     feat_mat_gallery = np.array(feat_mat_gallery)
-    features = {'feat_mat': feat_mat_gallery, 'labels': labels_gallery, 'refs': refs_gallery}
-    with open(path_gallery_features, 'wb') as fout:
+    features = {
+        "feat_mat": feat_mat_gallery,
+        "labels": labels_gallery,
+        "refs": refs_gallery,
+    }
+    with open(path_gallery_features, "wb") as fout:
         pickle.dump(features, fout)
     del features
 
