@@ -1,5 +1,7 @@
 #
 # Script to fuse features per member per family (i.e., for each FID.MID, average all encodings across feature dim).
+# Any features can be fused. Here is link to ArcFace features,
+# https://www.dropbox.com/s/5rbj68dqud2folu/FIDs-features.tar.gz?dl=0
 #
 import pickle
 from pathlib import Path
@@ -11,13 +13,13 @@ from src.tools.features import l2_norm
 
 dir_features = str(Path("./").home() / "datasets/rfiw2021/rfiw2021-data/FIDs-features/")
 dir_out = ""
-ext = "npy"  # ["pkl', 'npy']
+ext = "pkl"  # ["pkl', 'npy']
 # assume input/output directories are the same if no output is specified
 dir_out = dir_out if len(dir_out) == 0 else dir_features
 path_features = Path(dir_features)
 dir_contents = list(path_features.glob("F????"))
 normalize_features = True
-do_pickle2numpy = False
+do_pickle2numpy = True
 # convert pkl files to npy (not required, just done if preferred).
 # Average fuse all embeddings for each MID
 for fid in tqdm(dir_contents):
@@ -33,7 +35,6 @@ for fid in tqdm(dir_contents):
 
         for face_feat in mid.glob(f"*face*.{ext}"):
             # for each face
-            feature = None
             if ext == "pkl":
                 try:
                     with open(str(face_feat), "rb") as fin:
@@ -51,8 +52,8 @@ for fid in tqdm(dir_contents):
                 # TODO : have as assert outside for loop (i.e., when value is set), but quick solution for now
                 print(f"extension {ext} is unrecognizable. Options: [pkl, npy]")
                 exit(0)
-            if feature:
-                features.append(feature)
+
+            features.append(feature)
 
         if features and normalize_features:
             # if features exist and normalize flag is set True
@@ -60,5 +61,6 @@ for fid in tqdm(dir_contents):
             features = l2_norm(features[None, ...])[0]
 
         if features.shape[0] == 512:
-            print(f"Saving: {fout}")
             np.save(fout, features)
+        else:
+            print(f"ERROR saving: {fout}")
