@@ -10,7 +10,7 @@ dask~=2.13.0
 dominate~=2.5.1
 flake8
 flask~=1.1.1
-html4vision~=0.4.0
+html4vision~=0.4.3
 imutils~=0.5.3
 keras~=2.3.1
 librosa~=0.7.2
