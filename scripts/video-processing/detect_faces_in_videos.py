@@ -14,18 +14,20 @@ from PIL import Image
 from moviepy.editor import VideoFileClip
 from tqdm import tqdm
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
+PACKAGE_PARENT = "../.."
+SCRIPT_DIR = os.path.dirname(
+    os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
+)
+print(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+import sys
+
+sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
+
 from src.align.align_trans import get_reference_facial_points, warp_and_crop_face
 from src.align.detector import detect_faces
 from src.align.get_nets import PNet, ONet, RNet
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
-
-# PACKAGE_PARENT = "../.."
-# SCRIPT_DIR = os.path.dirname(
-#     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
-# )
-# print(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
-# sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
 cuda, Tensor = (
     (True, torch.cuda.FloatTensor)
@@ -50,8 +52,8 @@ crop_size = 112
 fps = 25
 imsize = (112, 112)
 
-source_root = Path("/home/jrobby/clips/")
-dest_root = "/home/jrobby/clips-faces/"
+source_root = Path("/home/jrobby/VIDs-aligned-tp-faces/")
+dest_root = Path("/home/jrobby/VIDs-aligned-tp-faces-aligned/")
 model_root = "../../models/Backbone_IR_152_checkpoint.pth"
 # path_data = Path(source_root).resolve()ß
 
@@ -61,35 +63,39 @@ path_out.mkdir(exist_ok=True, parents=True)
 scale = crop_size / 112.0
 reference = get_reference_facial_points(default_square=True) * scale
 
-dir_fids = list(source_root.glob("F????"))
-dir_fids.sort()
-dir_fids = list(reversed(dir_fids))
+dir_frames = list(source_root.glob("F????/MID*/v?????/track-*"))
+dir_frames.sort()
+# dir_frames = list(reversed(dir_frames))
 
 pnet = PNet()
 rnet = RNet()
 onet = ONet()
 
-# if cuda:
-#     pnet.cuda()
-#     rnet.cuda()
-#     onet.cuda()
+if cuda:
+    pnet.cuda()
+    rnet.cuda()
+    onet.cuda()
 
-for dir_fid in tqdm(dir_fids):
+for dir_fid in tqdm(reversed(dir_frames)):
 
-    for f_video in dir_fid.rglob("*.mp4"):
-
-        ref_base = str(f_video).replace(f"{str(source_root)}/", "").replace(".mp4", "")
-        path_obin = (path_out / ref_base).with_suffix("")
+    for f_video in dir_fid.glob("*.jpg"):
         try:
-            path_obin.mkdir(parents=True)
+            ref_base = (
+                str(f_video).replace(f"{str(source_root)}/", "").replace(".jpg", "")
+            )
+            path_obin = (path_out / ref_base).with_suffix("")
+            try:
+                path_obin.mkdir(parents=True)
 
-        except Exception as e:
-            print("skipping", f_video, e)
-            continue
-        print("Processing\t{}".format(ref_base))
-        clip = VideoFileClip(str(f_video))
-        tracks = []
-        try:
+            except Exception as e:
+                print("skipping", f_video, e)
+                continue
+            print("Processing\t{}".format(ref_base))
+
+            clip = VideoFileClip(str(f_video))
+
+            tracks = []
+
             for k, frame in enumerate(clip.iter_frames(fps=fps)):
                 try:
                     bbs, landmarks = detect_faces(
@@ -135,6 +141,6 @@ for dir_fid in tqdm(dir_fids):
                         )
                 except Exception as e:
                     print(e)
-            os.remove(str(f_video))
-        except Exception:
+            # os.remove(str(f_video))
+        except Exception as e:
             print("corrupted", f_video)

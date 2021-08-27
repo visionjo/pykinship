@@ -5,18 +5,16 @@ from pathlib import Path
 import moviepy.editor as mp
 from tqdm import tqdm
 
-dir_data = Path("/Volumes/MyWorld/FIW-MM/raw/")
-dir_out = dir_data / "audio"
-f_videos = glob.glob(f"{dir_data}/F????/v?????/*.mp4")
+dir_data = Path("../../data/fiw-mm/VIDs-aligned-tp/")
+dir_out = Path("../../data/fiw-mm/VIDs-aligned-wav/")
+f_scenes = dir_data.rglob("*.mp4")
 
-# dirs_out = [Path(f).parent.joinpath("audio") for f in f_scenes]
-# _ = [d.mkdir(exist_ok=True) for d in dirs_out]
-
-for f_video in tqdm(f_videos):
-    vid = Path(f_video).parent.name
-    fout = dir_out / Path(vid).with_suffix(".wav")
-    if fout.is_file():
-        continue
-    print(f_video)
-    clip = mp.VideoFileClip(f_video)
-    clip.audio.write_audiofile(fout)
+for f_scene in tqdm(f_scenes):
+    fout = Path(str(f_scene).replace(str(dir_data), str(dir_out))).with_suffix(".wav")
+    fout.parent.mkdir(exist_ok=True, parents=True)
+    if not fout.is_file():
+        # try:
+        clip = mp.VideoFileClip(str(f_scene))
+        clip.audio.write_audiofile(str(fout))
+        # except OSError:
+        #     print(f_scene)

@@ -19,6 +19,7 @@ from src.models.model_irse import IR_152
 
 # # import src.tools.io
 
+
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # Helper function for extracting features from pre-trained models
 # Download model weights on google drive:
@@ -164,7 +165,7 @@ if __name__ == "__main__":
         "-source_root",
         "--source_root",
         help="specify your source dir",
-        default="/home/jrobby/VIDs-aligned-faces/",
+        default="~/VIDs-aligned-faces/",
         # default="/Users/jrobby/GitHub/pykinship/data/fiw-videos/FIDs-MM/",
         type=str,
     )
@@ -173,7 +174,7 @@ if __name__ == "__main__":
         "--dest_root",
         help="specify your destination dir",
         # default="/Users/jrobby/GitHub/pykinship/data/fiw-videos/FIDs-MM-features/",
-        default="/home/jrobby/VIDs-aligned-faces-features/",
+        default="~/VIDs-aligned-faces-features/",
         type=str,
     )
     parser.add_argument(
