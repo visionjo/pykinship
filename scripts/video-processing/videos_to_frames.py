@@ -1,4 +1,8 @@
-from pathlib import Path
+#!/usr/bin/env python
+"""
+Script to convert mp4 files (videos) to png (images)
+"""
+
 from os import system
 import time
 import multiprocessing as mp

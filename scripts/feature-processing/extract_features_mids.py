@@ -165,7 +165,7 @@ if __name__ == "__main__":
         "-source_root",
         "--source_root",
         help="specify your source dir",
-        default="/home/jrobby/VIDs-aligned-tp-faces-aligned/",
+        default="~/VIDs-aligned-faces/",
         # default="/Users/jrobby/GitHub/pykinship/data/fiw-videos/FIDs-MM/",
         type=str,
     )
@@ -174,7 +174,7 @@ if __name__ == "__main__":
         "--dest_root",
         help="specify your destination dir",
         # default="/Users/jrobby/GitHub/pykinship/data/fiw-videos/FIDs-MM-features/",
-        default="/home/jrobby/VIDs-aligned-tp-faces-aligned-features/",
+        default="~/VIDs-aligned-faces-features/",
         type=str,
     )
     parser.add_argument(
@@ -216,9 +216,7 @@ if __name__ == "__main__":
         set(
             [
                 Path(f).parent
-                for f in glob.glob(
-                    f"{source_root}F????/MID*/v?????/track-???/face-???-??.jpg"
-                )
+                for f in glob.glob(f"{source_root}F????/MID*/v*/tra*/*.jpg")
             ]
         )
     )
