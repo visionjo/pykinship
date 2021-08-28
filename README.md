@@ -219,6 +219,15 @@ See Download links (and Terms and Conditions) [here](https://web.northeastern.ed
 ## Bugs and Issues
 Please bring up any questions, comments, bugs, PRs, etc.
 
---------
+---
+
+# To Do
+
+- [ ] Finish documentation
+- [ ] Demo for Track 1
+- [ ] Demo for Track 2
+- [ ] Demo for Track 3
+- [ ] Dataloader
+- [ ] Publish results (all baselines)
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
