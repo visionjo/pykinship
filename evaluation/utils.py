@@ -4,9 +4,21 @@ import scipy.io
 import torch
 from sklearn.metrics.pairwise import cosine_similarity
 
+
+#######################################################################
+# Evaluate
+def compute_scores_arr(feature_seta, feature_setb):
+
+    if feature_seta.shape[0] > 1:
+        feature_seta = feature_seta.reshape(-1, 1)
+
+    return cosine_similarity(feature_setb, feature_seta, dense_output=True)
+
+
 #######################################################################
 # Evaluate
 def compute_scores(feature_seta, feature_setb):
+
     query = feature_seta.view(-1, 1)
 
     x1 = feature_setb.cpu().numpy()
@@ -29,17 +41,42 @@ def evaluate(features_probe, labels_probes, features_gallery, labels_gallery):
     :param labels_gallery:
     :return:    CMC value?
     """
-    pass
 
-    scores = compute_scores(features_probe, features_gallery)
+    scores = compute_scores_arr(features_probe, features_gallery)
 
     ranked_list_predicted = make_prediction(scores)
 
     list_true_relatives = np.argwhere(labels_gallery == labels_probes)
 
-    cmc_tmp = compute_mAP(ranked_list_predicted, list_true_relatives)
+    cmc_tmp = compute_mAP_arr(ranked_list_predicted, list_true_relatives)
 
     return scores, ranked_list_predicted, cmc_tmp
+
+
+def compute_mAP_arr(predicted_indices, true_indices):
+    ap = 0
+    cmc = np.zeros(len(predicted_indices))
+    if not true_indices.size:  # if empty
+        cmc[0] = -1
+        return ap, cmc
+
+    # find good_index index
+    ngood = len(true_indices)
+    mask = np.in1d(predicted_indices, true_indices)
+    rows_good = np.argwhere(mask == True)
+    rows_good = rows_good.flatten()
+
+    cmc[rows_good[0]:] = 1
+    for i in range(ngood):
+        d_recall = 1.0 / ngood
+        precision = (i + 1) * 1.0 / (rows_good[i] + 1)
+        if rows_good[i] != 0:
+            old_precision = i * 1.0 / rows_good[i]
+        else:
+            old_precision = 1.0
+        ap = ap + d_recall * (old_precision + precision) / 2
+
+    return ap, cmc
 
 
 def compute_mAP(predicted_indices, true_indices):

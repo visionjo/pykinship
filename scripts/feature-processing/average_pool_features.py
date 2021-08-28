@@ -1,36 +1,66 @@
+#
+# Script to fuse features per member per family (i.e., for each FID.MID, average all encodings across feature dim).
+# Any features can be fused. Here is link to ArcFace features,
+# https://www.dropbox.com/s/5rbj68dqud2folu/FIDs-features.tar.gz?dl=0
+#
+import pickle
 from pathlib import Path
 
 import numpy as np
 from tqdm import tqdm
+
 from src.tools.features import l2_norm
 
-path_tracks = Path("/Volumes/MyWorld/FIW-MM/new-features/VIDs-aligned-tp-faces-aligned")
-for fid in tqdm(list(path_tracks.iterdir())):
-    if ".zip" in str(fid) or ".DS_Store" in str(fid):
-        continue
-    for mid in fid.iterdir():
+dir_features = str(Path("./").home() / "datasets/rfiw2021/rfiw2021-data/FIDs-features/")
+dir_out = ""
+ext = "pkl"  # ["pkl', 'npy']
+# assume input/output directories are the same if no output is specified
+dir_out = dir_out if len(dir_out) == 0 else dir_features
+path_features = Path(dir_features)
+dir_contents = list(path_features.glob("F????"))
+normalize_features = True
+do_pickle2numpy = True
+# convert pkl files to npy (not required, just done if preferred).
+# Average fuse all embeddings for each MID
+for fid in tqdm(dir_contents):
+    # for each FID
+    print(f"FID: {fid}")
+    for mid in fid.glob("MID*"):
+        # for each member
+        print(f"Fusing: {mid}")
         if not mid.is_dir():
             continue
-        for vid in mid.iterdir():
-            if vid.is_dir():
-                for vdir in vid.iterdir():
-                    if vdir.is_dir():
-                        fout = vdir / "avg_encoding.npy"
-                        if fout.is_file():
-                            encoding = np.load(fout)
-                            np.save(fout, l2_norm(encoding.reshape(1, -1)))
-                            print("skip")
-                            continue
-                        paths_encodings = []
-                        for f_feature in vdir.glob("*.npy"):
-                            if "encoding" in f_feature.name:
-                                continue
-                            print(f_feature)
-                            paths_encodings.append(f_feature)
-                        if paths_encodings:
-                            encodings = np.array(
-                                [np.load(str(f)) for f in paths_encodings]
-                            )
-                            encodings = np.mean(encodings, axis=0)
-                            if encodings.shape[0] == 512:
-                                np.save(fout, encodings)
+        fout = mid / "avg_encoding.npy"
+        features = []
+
+        for face_feat in mid.glob(f"*face*.{ext}"):
+            # for each face
+            if ext == "pkl":
+                try:
+                    with open(str(face_feat), "rb") as fin:
+                        feature = pickle.load(fin)
+                        feature = np.array(feature)
+                    if do_pickle2numpy:
+                        np.save(str(face_feat).replace(".pkl", ".npy"), feature)
+                except:
+                    print(
+                        f"WARNING: Exception thrown converting pickle to npy. {face_feat}"
+                    )
+            elif ext == "npy":
+                feature = np.load(str(face_feat))
+            else:
+                # TODO : have as assert outside for loop (i.e., when value is set), but quick solution for now
+                print(f"extension {ext} is unrecognizable. Options: [pkl, npy]")
+                exit(0)
+
+            features.append(feature)
+
+        if features and normalize_features:
+            # if features exist and normalize flag is set True
+            features = np.mean(features, axis=0)
+            features = l2_norm(features[None, ...])[0]
+
+        if features.shape[0] == 512:
+            np.save(fout, features)
+        else:
+            print(f"ERROR saving: {fout}")
