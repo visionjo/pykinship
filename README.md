@@ -16,9 +16,22 @@ Python tools for automatic kinship recognition in images and videos.Python tools
 - [Getting Involved](#getting-involved)
 
 
+## Introduction
+
+Python tools for automatic kinship recognition in images and videos.Python tools for automatic kinship recognition in images and videos.
+
+- This is the documentation of the visual kinship recognition toolbox and tools specific to the [FIW](https://web.northeastern.edu/smilelab/fiw/) dataset (i.e., FIW data development kit). If you want the Places-CNN models instead of the training data, please refer to the [FIW-models](https://github.com/jvison/pykin).
+- Demos for Recognizing Families In the Wild (RFIW)
+  [5th Edition](https://medium.com/to-recognize-families-in-the-wild-a-machine-vision/rfiw2021-7ceb357a39a6):
+  - [Track 1](https://competitions.codalab.org/competitions/21843), Verification;
+  - [Track 2](https://competitions.codalab.org/competitions/22117), Tri-Subject Verification;
+  - [Track 3](https://competitions.codalab.org/competitions/22152), Search & Retrieval.
+
+This repo is a work in progress and all contributions and requests are welcome.
+
 **In summary, the following items are available:**
-    
-* Version and contact information, download links, along with a brief description of the different download options.
+
+- Version and contact information, download links, along with a brief description of the different download options.
 
 * Overview of the API, its purpose, contents, and premiere features.
 
@@ -32,6 +45,7 @@ Python tools for automatic kinship recognition in images and videos.Python tools
 
 * List of action items (tentative; open to requests and PRs)
 
+- List of action items (tentative; open to requests and PRs)
 
 This repo serves as the main set of tools for kinship recognition effort, including the FIW database. Besides, the next section is detailed description of database (i.e., data and label) structure.
 
