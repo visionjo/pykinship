@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from evaluation.utils import evaluate
+from sklearn.metrics import (average_precision_score,
+                             plot_precision_recall_curve,
+                             precision_recall_curve)
 from tqdm import tqdm
 
 
