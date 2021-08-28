@@ -229,5 +229,13 @@ Please bring up any questions, comments, bugs, PRs, etc.
 - [ ] Demo for Track 3
 - [ ] Dataloader
 - [ ] Publish results (all baselines)
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
 
+# Disclaimer
+
+<div>
+<div class="paragraph">If you found our data and resources useful please cite our works [above]().
+</div>
+
+---
+
+<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
