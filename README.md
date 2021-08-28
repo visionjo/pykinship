@@ -33,17 +33,15 @@ This repo is a work in progress and all contributions and requests are welcome.
 
 - Version and contact information, download links, along with a brief description of the different download options.
 
-* Overview of the API, its purpose, contents, and premiere features.
+- Overview of the API, its purpose, contents, and premiere features.
 
-* Image data details for FIW-Standard and RFIW-Challenge.
+- Image data details for FIW-Standard and RFIW-Challenge.
 
-    1. Image list and annotations
-    2. Submission format
-    3. Evaluation routines
+  1. Image list and annotations
+  2. Submission format
+  3. Evaluation routines
 
-* Overview of the FIW data development kit.
-
-* List of action items (tentative; open to requests and PRs)
+- Overview of the FIW data development kit.
 
 - List of action items (tentative; open to requests and PRs)
 
@@ -51,85 +49,67 @@ This repo serves as the main set of tools for kinship recognition effort, includ
 
 Please contact Joseph Robinson [robinson.jo@northeastern.edu](robinson.jo@northeastern.edu) for questions, comments, or bug reports.
 
-
-
 Download data and learn more about it here [https://web.northeastern.edu/smilelab/fiw/](https://web.northeastern.edu/smilelab/fiw/).
 
+---
 
-# <a name="version">Version</a>
-**0.1.0**
-Created:    16 January 2020
+# Families In the Wild Database
 
-## Download
-FIW can be obtained from two primary locatiions: the main dataset (i.e., raw data, experimental splits, and more) [downloads page](https://web.northeastern.edu/smilelab/fiw/download.html), along with task-specific data splits on codalab (i.e., [Task 1](https://competitions.codalab.org/competitions/21843), [Task 2](https://competitions.codalab.org/competitions/22117), and [Task 3](https://competitions.codalab.org/competitions/22152)), which were at one time used for data challenge (i.e., [2020 RFIW](https://arxiv.org/pdf/2002.06303.pdf) in conjunction with the [IEEE FG Conference](https://fg2020.org/)). Oncce download, we suggest to decompress the files in the data to their own folder. 
+FIW can be obtained from two primary locations: the main dataset (i.e., raw data, experimental splits, and more) [downloads page](https://web.northeastern.edu/smilelab/fiw/download.html), along with task-specific data splits on codalab (i.e., [Task 1](https://competitions.codalab.org/competitions/21843), [Task 2](https://competitions.codalab.org/competitions/22117), and [Task 3](https://competitions.codalab.org/competitions/22152)), which were at one time used for data challenge (i.e., [2020 RFIW](https://arxiv.org/pdf/2002.06303.pdf) in conjunction with the [IEEE FG Conference](https://fg2020.org/)). Oncce download, we suggest to decompress the files in the data to their own folder.
 
+## FIW Data and Labels
 
-
-## Families In the Wild (FIW) Data and Labels
-This documentation describes FIW DB and (working) development kit. This is work in prgress (i.e., still to come are FIW-CNN models, updated benchmarks, more in README (this), and more).
+This documentation describes FIW DB and (working) development kit. This is work in progress (i.e., still to come are FIW-CNN models, updated benchmarks, more in README (this), and more).
 
 Check out FIW [project page](https://web.northeastern.edu/smilelab/fiw/index.html)
 
+## Download
 
+Download [here](https://web.northeastern.edu/smilelab/fiw/download.html)
 
 ## DB Contents and Structure
-### Counts
+
+- _FIW_PIDs.csv:_ Photo lookup table. Each row is an image instance, containing the following fields:
+  - _PID:_ Photo ID
+  - _Name:_ Surname.firstName (root reference for given family)
+  - _URL:_ Photo URL on web
+  - _Metadata:_ Text caption for photo
+- _FIW_FIDs.csv:_ FID (family)/ Surname lookup table.
+  - _FID:_ Unique ID key assigned to each family.
+  - _Surname:_ Family Name corresponding to FID key.
+- _FIW_RIDs.csv:_ Relationship lookup table with keys [1-9] assigned to relationship types.
+
+- _FIDs/_
+  - _FID####/_ Contains labels and cropped facial images for members of family (1-1000)
+    - _MID#/:_ Face images of family member with ID key <N>, i.e., MID #.
+    - _F####.csv:_ File containing member information of each family:
+      - _relationships matrix:_ representation of relationships.
+      - _name:_ First name of family member.
+      - _gender:_ gender of family member.
+
+For example:
+
+```
+FID0001.csv
+
+	MID     1     2     3     Name    Gender
+	 1      0     4     5     name1     F
+	 2      1     0     1     name2     F
+	 3      5     4     0     name3     M
+
+```
+
+Here we have 3 family members, as listed under the MID column (far-left). Each MID reads acorss its row.
+
+We can see that MID1 is related to MID2 by 4->1 (Parent->Sibling), which of course can be viewed as the inverse, i.e., MID2->MID1 is 1->4. It can also be seen that MID1 and MID3 are Spouses of one another, i.e., 5->5. And so on, and so forth.
+
+## Statistics
 
 ![Task-1 Statistics](docs/task-1-counts.png)
 
 ![Task-2 Statistics](docs/task-2-counts.png)
 
 ![Task-3 Statistics](docs/task-3-counts.png)
-
-#
-
-### Download
-Download [here](https://web.northeastern.edu/smilelab/fiw/download.html)
-
-
-## <a name="Details-of-the-data">Details of the data</a>
-[Papers on FIW](https://web.northeastern.edu/smilelab/fiw/publications.html) decribe the data collection processes and details; supplemental to this is the [FIW Data Card]("DatasheetForFiw/main.pdf") below. Note that the Latex source file for the datasheet could be borrowed as a tempalate for another dataset of similar structure. Check out [repo](https://github.com/visionjo/DatasheetForFIW/tree/master), as well as [DatasheetForFiw/main.pdf](DatasheetForFiw/main.pdf)
-
-A more complete list of references can be found [here](https://web.northeastern.edu/smilelab/fiw/publications.html).
-
-### Structure
-* *FIW_PIDs.csv:* Photo lookup table. Each row is an image instance, containing the following fields:
-  * *PID:* Photo ID
-  * *Name:* Surname.firstName (root reference for given family)
-  * *URL:* Photo URL on web
-  * *Metadata:* Text caption for photo
-  
-* *FIW_FIDs.csv:* FID (family)/ Surname lookup table.
-  * *FID:* Unique ID key assigned to each family.
-  * *Surname:* Family Name corresponding to FID key.
-  
-* *FIW_RIDs.csv:* Relationship lookup table with keys [1-9] assigned to relationship types.
-
-* *FIDs/*
-  * *FID####/* Contains labels and cropped facial images for members of family (1-1000)
-    * *MID#/:* Face images of family member with ID key <N>, i.e., MID #.
-    * *F####.csv:* File containing member information of each family:
-      * *relationships matrix:* representation of relationships.
-      * *name:* First name of family member.
-      * *gender:* gender of family member.
-      
-      
-For example:
-
-```
-FID0001.csv
-    
-	MID     1     2     3     Name    Gender
-	 1      0     4     5     name1     F
-	 2      1     0     1     name2     F
-	 3      5     4     0     name3     M
-	
-```
-
-Here we have 3 family members, as listed under the MID column (far-left). Each MID reads acorss its row.
-
-
-We can see that MID1 is related to MID2 by 4->1 (Parent->Sibling), which of course can be viewed as the inverse, i.e., MID2->MID1 is 1->4. It can also be seen that MID1 and MID3 are Spouses of one another, i.e., 5->5. And so on, and so forth.
 
 # Publications
 
