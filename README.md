@@ -199,10 +199,12 @@ A more complete list of references can be found [here](https://web.northeastern.
 
 ---
 
+# Organization
 
-# <a name="license">License</a>
+## License
 
 By downloading the image data you agree to the following terms:
+
 1. You will use the data only for non-commercial research and educational purposes.
 2. You will NOT distribute the above images.
 3. Northeastern University makes no representations or warranties regarding the data, including but not limited to warranties of non-infringement or fitness for a particular purpose.
@@ -210,14 +212,18 @@ By downloading the image data you agree to the following terms:
 
 See Download links (and Terms and Conditions) [here](https://web.northeastern.edu/smilelab/fiw/download.html).
 
+## Version
 
-# Authors
-* **Joseph Robinson** - [Github](https://github.com/visionjo) - [web](http://www.jrobsvision.com)
-* **Zaid Khan** - [Github](https://github.com/codezakh)
+**0.1.0**
+Created: 16 January 2020
 
+## Authors
 
-# <a name="getting-involved">Getting Involved</a>
+- **Joseph Robinson** - [Github](https://github.com/visionjo) - [web](http://www.jrobsvision.com)
+- **Zaid Khan** - [Github](https://github.com/codezakh)
+
 ## Bugs and Issues
+
 Please bring up any questions, comments, bugs, PRs, etc.
 
 ---
