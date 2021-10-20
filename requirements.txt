@@ -6,10 +6,10 @@ Sphinx
 awscli
 click~=7.1.1
 coverage
-dask~=2021.8.1
+dask~=2021.9.1
 dominate~=2.5.1
 flake8
-flask~=1.1.1
+flask~=2.0.2
 html4vision~=0.4.3
 imutils~=0.5.4
 keras~=2.6.0
