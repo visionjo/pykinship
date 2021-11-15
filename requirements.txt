@@ -37,5 +37,5 @@ tensorflow>=2.4.0
 torchvision~=0.10.1
 torch~=1.9.1
 tqdm~=4.62.3
-typing_extensions~=3.10.0.2
+typing_extensions~=4.0.0
 wget~=3.2
