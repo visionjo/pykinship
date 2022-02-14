@@ -6,7 +6,7 @@ Sphinx
 awscli
 click~=8.0.3
 coverage
-dask~=2021.9.1
+dask~=2022.2.0
 dominate~=2.6.0
 flake8
 flask~=2.0.2
